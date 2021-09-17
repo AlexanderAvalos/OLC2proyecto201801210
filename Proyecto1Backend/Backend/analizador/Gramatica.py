@@ -15,7 +15,7 @@ def agregarError(tipo, descripcion, linea, columna):
     
 
 reservadas = {
-    'nothing': 'NULO',
+    'nothing': 'NOTHING',
     'int64': 'INT64',
     'float64': 'FLOAT64', 
     'bool': 'BOOL',
@@ -213,6 +213,7 @@ def p_instrucciones2(p):
     
 def p_instruccion(p):
     ''' instruccion : asignacion
+                    | arreglos
                     | nativa
                     | sentencia
                     | funcion
@@ -223,11 +224,42 @@ def p_instruccion(p):
                     
     '''
     p[0] = p[1]
+# arreglos 
+
+def p_declaracionarreglos(p):
+    'arreglos : ID IGUAL CORIZQ valores CORDER PUNTOYCOMA'
+    p[0] = DeclaracionArreglos(p[1],p[4],p.lineno(1), buscar_columna(p.slice[1]))
+
+
+def p_operacionarreglos(p):
+    'operacion : CORIZQ  valores CORDER'
+    p[0] = OperacionArreglo(p[2],p.lineno(1), buscar_columna(p.slice[1]))
+
+def p_operacionarreglo(p):
+    'operacion : ID listaposiciones'
+    p[0] = OperacionArregloget(p[1],p[2],p.lineno(1), buscar_columna(p.slice[1]))
+
+def p_asignacionArreglo(p):
+    'asignacion : ID listposiciones IGUAL operacion PUNTOYCOMA'
+    p[0] = AsignacionArreglo(p[1],p[2],p[4],p.lineno(1), buscar_columna(p.slice[1]))
+
+def p_listaposiciones(p):
+    'listapoisciones : listaposiciones listaposicion'
+    p[1].append(p[2])
+    p[0] = p[1]
+
+def p_listaposiciones2(p):
+    'listapoisciones : listaposicion'
+    p[0]= [p[1]]
+
+def p_listaposicion(p):
+    'listaposicion : CORIZQ operacion CORDER'
+    p[0] = listaindicies(p[2],p.lineno(1), buscar_columna(p.slice[1]))
 
 # delcaracion struct
 def p_structMutable(p):
     'structs : MUTABLE STRUCTR ID listaAtributos END PUNTOYCOMA'
-    p[0] = StructsMutable(p[3], p[4], p.lineno(1), buscar_columna(p.slice[1]))
+    p[0] = StructsIn(p[3], p[4], p.lineno(1), buscar_columna(p.slice[1]))
 
 def p_structInmutable(p):
     'structs : STRUCTR ID listaAtributos END PUNTOYCOMA'
@@ -269,6 +301,13 @@ def p_operacionstruct4(p):
     'operacionstruct : PUNTO ID'
     p[0] = p[2]
 
+#asignacion struct
+
+def p_asignacionstruct(p):
+    'asignacion : ID operacionstructs IGUAL operacion PUNTOYCOMA'
+    p[0] = AsginacionStruc(p[1],p[2],p[4],p.lineno(1),buscar_columna(p.slice[1]))
+
+
 #llamadafunciones
 
 def p_llamada(p):
@@ -278,6 +317,7 @@ def p_llamada(p):
 def p_llamada2(p):
     'callfuncion : ID PARIZQ valores PARDER PUNTOYCOMA'
     p[0] = llamada(p[1], p[3], p.lineno(1))
+
 
 
 #funcion
@@ -563,7 +603,6 @@ def p_tipo(p):
                 |   CHAR
                 |   ID
                 |   STRING
-                |   NULO
     '''
     p[0] = p[1]
 
@@ -601,7 +640,9 @@ def p_valorTrue(p):
     'valor : FALSE'
     p[0]= OperacionBooleana(p[1], p.lineno(1), buscar_columna(p.slice[1]))
 
-
+def p_valorNulo(p):
+    'valor : NOTHING'
+    p[0] = OperacionNULO(p[1],p.lineno(1), buscar_columna(p.slice[1]))
 
 def p_error(p):
     agregarError('sintantico',  "Sintaxis no reconocida \"{0}\"".format(p.value) ,p.lineno+1, buscar_columna(p))

@@ -6,31 +6,47 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col'
-import axios from 'axios'
+import axios from 'axios';
+import { Graphviz } from 'graphviz-react';
+import {saveAs} from 'file-saver';
+
+
 const URL = "http://localhost:5000/serv"
 
 export default function Analisis(){
     const [valor,setvalue] = useState('');
     const [valor2,SetValor] = useState('');
-    
+    const [as,setAst] = useState('digraph{}');
+    const [te,setTE] = useState('digraph{}');
+    const [ts,setTS] = useState('digraph{}');
+
     async function analizar(){
         const obj = {valor}
         const {data} = await axios.post(URL,obj)
-        console.log(data)
-        SetValor( data)
+        SetValor(data)
     }
     async function ast(){
         const obj = {valor}
         const {data} = await axios.post(URL+"/ast",obj)
-        console.log(data)
+        setAst(data)
     }
     async function tablaSimbolo(){
         const {data} = await axios.get(URL + '/simbolo')
-        console.log(data)
+        setTS( data )
     }
     async function tablaErrores(){
         const {data} = await axios.get(URL + '/error')
-        console.log(data)
+        setTE(data)
+    }
+
+
+    const guardarfile = () =>{
+        const blob = new Blob([ts]);
+        saveAs(blob, 'TablaSimbolo.dot');
+        const blob2 = new Blob([te]);
+        saveAs(blob2, 'TablaErrores.dot');
+        const blob3 = new Blob([as]);
+        saveAs(blob3, 'AST.dot');
     }
 
     const readFile = (e) =>{
@@ -63,15 +79,26 @@ export default function Analisis(){
                         <Col>
                         <div className="form-group">
                         <Form.Label style={{ color: 'black' }}>Consola</Form.Label>  <br />
+                            <div className="graph">
                             <Form.Control as="textarea" rows={3} name="consola" value = {valor2} onChange = {(e)=> SetValor(e.target.valor2)} /><br />
-                        </div>
                             <Button variant="primary" onClick={analizar}> Analizar</Button> &nbsp;
                             <Button variant="secondary" onClick={tablaSimbolo}> Tabla Simbolos</Button> &nbsp;
                             <Button variant="danger" onClick={tablaErrores}> Tabla Errores</Button> &nbsp;
-                            <Button variant="success" onClick={ast}> AST</Button><br/>
+                            <Button variant="success" onClick={ast}> AST</Button><br/><br/>
+                            <Button variant="success" onClick={guardarfile}> Generar dot</Button><br/>
+                            </div>
+                        </div >
                         </Col>
                     </Row>
+                    
+                    
                 </Container>
+                <body>
+                <Graphviz dot={as}/>
+                <Graphviz dot={ts}/>
+                <Graphviz dot={te}/>
+                </body>
+                
             </>
         );
     

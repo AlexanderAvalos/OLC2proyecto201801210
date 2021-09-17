@@ -17,36 +17,39 @@ CORS(app)
 
 @app.route('/serv/ast', methods = ['POST'])
 def recibir2():
+    astsa = ""
     data = request.json
     input = data['valor']
     nodo = gast.parse(input)
     graficar = ast.GraficarArbol(args=(nodo,"AST"))
-    graficar.run()
+    astsa = graficar.run()
     gast.restart()
     
-    return  "Ast generado correctamente"
+    return  astsa
 
 
 
 @app.route('/serv/simbolo',methods = ['GET'])
 def TablaSimbolo():
+    aux = ""
     if len(interpre) > 0:
         for val in interpre:
-            val.graficar()
-        interpre.clear();
-    return "Tabla de Simbolos Creada"
+            aux = val.graficar()
+        interpre.remove(val);
+    return aux 
 
 
 @app.route('/serv/error', methods = ['GET'])
 def tablaError():
+    aux = ""
     if len(interpre) > 0:
         for val in interpre:
-            val.graficarErrores()
+            aux = val.graficarErrores()
         interpre.clear()
     else:
         print("error al crear grafica")   
 
-    return "Tabla De Errores Creada"
+    return aux
 
 @app.route('/serv', methods = ['POST'])
 def recibir():

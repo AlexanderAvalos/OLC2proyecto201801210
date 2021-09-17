@@ -169,6 +169,12 @@ class OperacionBooleana(Instruccion):
         self.columna = columna
         super().__init__()
 
+class OperacionNULO():
+    def __init__(self, val, linea , columna):
+        self.val = val
+        self.linea = linea 
+        self.columna = columna
+        super().__init__()
 
 #numerica
 class OperacionNumerica(Instruccion):
@@ -425,6 +431,15 @@ class OperacionStruct(Instruccion):
         self.linea = linea 
         self.columna = columna
         super().__init__()
+
+class AsginacionStruc(Instruccion):
+    def __init__(self,id,lstid,operacion,linea,columna):
+        self.idstruct = id
+        self.lstid = lstid
+        self.operacion = operacion
+        self.linea = linea 
+        self.columna = columna
+        super().__init__()
 #arreglos
 class DeclaracionArreglos(Instruccion):
     def __init__(self,id,listavalores,linea, columna):
@@ -434,9 +449,34 @@ class DeclaracionArreglos(Instruccion):
         self.columna = columna
         super().__init__()
 
-class ValorArreglo(Instruccion):
-    def __init__(self,Valor, linea, columna):
-        self.valor = Valor
+class listaindicies(Instruccion):
+    def __init__(self,operacion,linea, columna ):
         self.linea = linea
         self.columna = columna
+        self.operacion = operacion
+        super().__init__()
+
+class OperacionArreglo(Instruccion):
+    def __init__(self,lstoperacion,linea, columna ):
+        self.lstoperacion = lstoperacion
+        self.linea = linea
+        self.columna = columna
+        super().__init__()
+
+
+class OperacionArregloget(Instruccion):
+    def __init__(self,id,listaposicion,linea, columna ):
+        self.id = id
+        self.listaposicion = listaposicion
+        self.linea = linea
+        self.columna = columna
+        super().__init__()
+
+class AsignacionArreglo(Instruccion):
+    def __init__(self,idarreglo, listaposicion, operacion, linea ,columna):
+        self.id = idarreglo
+        self.listaposicion = listaposicion
+        self.linea = linea
+        self.columna = columna
+        self.operacion = operacion
         super().__init__()

@@ -47,6 +47,8 @@ class interprete:
             return self.procesar_valor(operacion,ts)
         elif isinstance(operacion, OperacionBooleana):
             return self.procesar_valor(operacion,ts)
+        elif isinstance(operacion,OperacionNULO):
+            return None;
         elif isinstance(operacion, OperacionUnaria):
             return self.procesar_operacionunaria(operacion,ts)
         elif isinstance(operacion, OperacionSen):
@@ -82,7 +84,7 @@ class interprete:
         elif isinstance(operacion, OperacionStruct):
             return self.procesar_operacionStruct(operacion,ts)
         else: 
-            nuevo = err.TokenError("Semantico","Operacion \"{}\"desconocida".format(operacion), operacion.linea,operacion.columna)
+            nuevo = err.TokenError("Semantico","Operacion \"{0}\"desconocida".format(operacion), operacion.linea,operacion.columna)
             self.lst_errores.append(nuevo)
 
 #unaria
@@ -96,18 +98,18 @@ class interprete:
                 elif op1 == 0:
                     return 1
                 else: 
-                    nuevo = err.TokenError("Semantico","tipo desconocida", operacion.linea,operacion.columna)
+                    nuevo = err.TokenError("Semantico","opreacion not invalida", operacion.linea,operacion.columna)
                     self.lst_errores.append(nuevo)
                     return 0
             elif operacion.operacion == OPERACION_NUMERICA.RESTA:
                 if isinstance(op1,int) or isinstance(op1,float):
                     return -1*op1
             else :
-                nuevo = err.TokenError("Semantico","tipo desconocida", operacion.linea,operacion.columna)
+                nuevo = err.TokenError("Semantico","tipo \"{0}\" desconocido".format(operacion), operacion.linea,operacion.columna)
                 self.lst_errores.append(nuevo)
                 return op1
         except:
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.linea,operacion.columna)
+            nuevo = err.TokenError("Semantico","Operacion \"{0}\" desconocido".format(operacion), operacion.linea,operacion.columna)
             self.lst_errores.append(nuevo)
 
 #numerica 
@@ -144,7 +146,7 @@ class interprete:
             elif operacion.operacion == OPERACION_NUMERICA.MODULAR:
                 return self.procesar_valor(operacion.opIzq,ts) % self.procesar_valor(operacion.opDer,ts)
         except:
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.line,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion Numerica \"{0}\"".format(operacion), operacion.line,operacion.columna)
             self.lst_errores.append(nuevo)
 
 #relacional 
@@ -162,7 +164,7 @@ class interprete:
             elif operacion.operacion == OPERACION_RELACIONAL.MAYORQUE: return 1 if(op1>=op2) else 0
             elif operacion.operacion == OPERACION_RELACIONAL.MENORQUE: return 1 if(op1 <= op2) else 0
         except : 
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.linea,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion Relacion \"{0}\" desconocida".format(operacion.op1), operacion.linea,operacion.columna)
             self.lst_errores.append(nuevo)
 
 #logica
@@ -205,7 +207,7 @@ class interprete:
         elif operacion.tipo == Tipo.DECIMAL:
             return float(operacion.valor)
         else:
-            nuevo = err.TokenError("Semantico","tipo desconocida", operacion.linea)
+            nuevo = err.TokenError("Semantico","tipo desconocido", operacion.linea)
             self.lst_errores.append(nuevo)
 
     def procesar_trunc(self,operacion):
@@ -272,7 +274,7 @@ class interprete:
         try:
             return math.sin(op1)
         except: 
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.line,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion \"{0}\"".format(operacion.operador), operacion.line,operacion.columna)
             self.lst_errores.append(nuevo)
         
     def procesar_cos(self,operacion,ts):
@@ -280,7 +282,7 @@ class interprete:
         try:
             return math.cos(op1)
         except: 
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.line,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion \"{0}\"".format(operacion.operador), operacion.line,operacion.columna)
             self.lst_errores.append(nuevo)
     
     def procesar_tan(self,operacion,ts):
@@ -288,7 +290,7 @@ class interprete:
         try:
             return math.tan(op1)
         except: 
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.line,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion \"{0}\"".format(operacion.operador), operacion.line,operacion.columna)
             self.lst_errores.append(nuevo)
 
     def procesar_log10(self,operacion,ts):
@@ -296,7 +298,7 @@ class interprete:
         try:
             return math.log10(op1)
         except: 
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.line,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion \"{0}\"".format(operacion.operador), operacion.line,operacion.columna)
             self.lst_errores.append(nuevo)
     
     def procesar_log(self,operacion,ts):
@@ -305,7 +307,7 @@ class interprete:
         try:
             return math.log(op1,op2)
         except: 
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.line,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion \"{0}\"".format(operacion.operador), operacion.line,operacion.columna)
             self.lst_errores.append(nuevo)
 
     def procesar_sqrt(self,operacion,ts):
@@ -313,7 +315,7 @@ class interprete:
         try:
             return math.sqrt(op1)
         except: 
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.line,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion \"{0}\"".format(operacion.operador), operacion.line,operacion.columna)
             self.lst_errores.append(nuevo)
     
     def procesar_lower(self,operacion,ts):
@@ -326,7 +328,7 @@ class interprete:
                 opaux = self.procesar_operacion(operacion.operador,ts) 
                 return opaux.lower()
         except: 
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.line,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion \"{0}\"".format(operacion.operador), operacion.line,operacion.columna)
             self.lst_errores.append(nuevo)
 
     def procesar_upper(self,operacion,ts):
@@ -339,7 +341,7 @@ class interprete:
                 opaux = self.procesar_operacion(operacion.operador,ts) 
                 return opaux.upper()
         except: 
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.line,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion \"{0}\"".format(operacion.operador), operacion.line,operacion.columna)
             self.lst_errores.append(nuevo)
     
     def procesar_length(self,operacion,ts):
@@ -352,7 +354,7 @@ class interprete:
                 opaux = self.procesar_operacion(operacion.operador,ts) 
                 return opaux.__len__()
         except: 
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.line,operacion.columna)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion \"{0}\"".format(operacion.operador), operacion.line,operacion.columna)
             self.lst_errores.append(nuevo)
 
 #valores
@@ -386,6 +388,8 @@ class interprete:
                 nuevo = err.TokenError("Semantico","Booleano desconocido", expresion.linea,expresion.columna)
                 self.lst_errores.append(nuevo)
                 return None
+        elif isinstance(expresion,OperacionNULO):
+            return None
         else:
             return self.procesar_operacion(expresion,ts)
 
@@ -405,7 +409,7 @@ class interprete:
                 simbolo = TS.Simbolo(instr.id, op1.getText(), instr.tipo, instr.linea, instr.columna)
                 ts.actualizar(simbolo)
             else: 
-                nuevo = err.TokenError("Semantico","Operacion desconocida", instr.linea,instr.columna)
+                nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id), instr.linea,instr.columna)
                 self.lst_errores.append(nuevo)
         else: 
             if ts.verificar(instr.id, ts) == False:
@@ -415,7 +419,7 @@ class interprete:
                 simbolo = TS.Simbolo(instr.id, op1, instr.tipo, instr.linea, instr.columna)
                 ts.actualizar(simbolo)
             else: 
-                nuevo = err.TokenError("Semantico","Valor desconocido", instr.linea,instr.columna)
+                nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id), instr.linea,instr.columna)
                 self.lst_errores.append(nuevo)
 
 # impresion valores sencillos
@@ -446,7 +450,7 @@ class interprete:
         if ts.existe(val.id) == True:
             return(self.procesar_valor(val,ts))
         else:
-            nuevo = err.TokenError("Semantico","Operacion desconocida", val.linea,val.columna)
+            nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(val.id), val.linea,val.columna)
             self.lst_errores.append(nuevo)
 
 # impresion arreglos
@@ -600,9 +604,6 @@ class interprete:
                             return struct
                         else:
                             print("Los valores no coinciden")
-                else: 
-                    nuevo = err.TokenError("Semantico","Funcion desconocido", 0,0)
-                    self.lst_errores.append(nuevo)
         else:
                 nuevo = err.TokenError("Semantico","Funciones no declaradas", 0,0)
                 self.lst_errores.append(nuevo)
@@ -630,15 +631,52 @@ class interprete:
 #operacion struct
 
     def procesar_operacionStruct(self,expresion,ts):
-        struct = ts.get(expresion.idstruct,ts)
-        struct = st.bloqueStruct(struct)
-        if struct != False:
-            if struct.existe(expresion.lstid):
-               return struct.get2(expresion.lstid)
-            else: 
-                print("error 1")
-        else:
-            print("error 2")
+        if ts.existe(expresion.idstruct):
+            struct = ts.get(expresion.idstruct,ts)
+            struct = st.bloqueStruct(struct)
+            if struct != False:
+                if struct.existe(expresion.lstid):
+                    return struct.get2(expresion.lstid)
+                else: 
+                    nuevo = err.TokenError("Semantico","Operacion struct \"{0}\"desconocida".format(expresion.idstruct), expresion.linea,expresion.columna)
+                    self.lst_errores.append(nuevo)
+            else:
+                nuevo = err.TokenError("Semantico","Operacion struct \"{0}\"desconocida".format(expresion.idstruct), expresion.linea,expresion.columna)
+                self.lst_errores.append(nuevo)
+        else: 
+            nuevo = err.TokenError("Semantico","Operacion struct \"{0}\"desconocida".format(expresion.idstruct), expresion.linea,expresion.columna)
+            self.lst_errores.append(nuevo)
+
+#asginacion struct
+
+    def procesar_asignacionstruct(self,expresion,ts):
+
+        if ts.existe(expresion.idstruct):
+            struct = ts.get(expresion.idstruct,ts)
+            struct = st.bloqueStruct(struct)
+            op = self.procesar_operacion(expresion.operacion,ts)
+            if isinstance(op,ArbolCaracter):
+                if struct != False:
+                    if struct.existe(expresion.lstid):
+                        return struct.set(expresion.lstid,op.getText())
+                    else: 
+                        nuevo = err.TokenError("Semantico","Operacion struct \"{0}\"desconocida".format(expresion.idstruct), expresion.linea,expresion.columna)
+                        self.lst_errores.append(nuevo)
+                else:
+                    nuevo = err.TokenError("Semantico","Operacion struct \"{0}\"desconocida".format(expresion.idstruct), expresion.linea,expresion.columna)
+                    self.lst_errores.append(nuevo)
+            else:
+                if struct != False:
+                    if struct.existe(expresion.lstid):
+                        return struct.set(expresion.lstid,op)
+                    else: 
+                        nuevo = err.TokenError("Semantico","Operacion struct \"{0}\"desconocida".format(expresion.idstruct), expresion.linea,expresion.columna)
+                        self.lst_errores.append(nuevo)
+                else:
+                    nuevo = err.TokenError("Semantico","Operacion struct \"{0}\"desconocida".format(expresion.idstruct), expresion.linea,expresion.columna)
+                    self.lst_errores.append(nuevo)
+
+
 
 # recorrer instrucciones
     def procesar_instrucciones(self, Instruccion, ts):
@@ -673,6 +711,8 @@ class interprete:
                 self.procesar_llamada(instr,ts)
             elif isinstance(instr,StructsIn):
                 self.procesar_struct(instr,ts)
+            elif isinstance(instr,AsginacionStruc):
+                self.procesar_asignacionstruct(instr,ts)
             else:
                 nuevo = err.TokenError("Semantico","Instruccion  \"{0}\" desconocida".format(instr), 0,0)
                 self.lst_errores.append(nuevo)
@@ -684,95 +724,73 @@ class interprete:
 
     def graficar(self):
         try:
-            file = open("TablaSimbolos.dot", "w")
-            file.write("digraph TablaSimbolos{\n")
-            file.write("graph [ratio = fill]; node [label = \"\\N\", shape=plaintext];\n")
-            file.write("graph [bb=\"0,0,352,154\"];\n")
-            file.write("err [label = <\n")
-            file.write("<TABLE ALIGN = \"LEFT\">\n")
-            file.write("<TR><TD>IDENTIFICADOR</TD><TD>VALOR</TD><TD>TIPO</TD><TD>LINEA</TD><TD>COLUMNA</TD></TR>\n") 
+            file = ""
+            file = file +  "digraph TablaSimbolos{\n"
+            file = file + ("graph [ratio = fill]; node [label = \"\\N\", shape=plaintext];\n")
+            file = file + ("graph [bb=\"0,0,352,154\"];\n")
+            file = file + ("err [label = <\n")
+            file = file +("<TABLE ALIGN = \"LEFT\">\n")
+            file = file +("<TR><TD>IDENTIFICADOR</TD><TD>VALOR</TD><TD>TIPO</TD><TD>LINEA</TD><TD>COLUMNA</TD></TR>\n") 
             for val2 in self.ts.simbolos:
-                    file.write("<TR>")
-                    file.write("<TD>")
-                    file.write(val2)
-                    file.write("</TD>")
-                    file.write("<TD>")
-                    file.write(str(self.ts.get(val2,self.ts)))
-                    file.write("</TD>")
-                    file.write("<TD>")
-                    file.write(str(self.ts.obtener(val2,self.ts).tipo))
-                    file.write("</TD>")
-                    file.write("<TD>")
-                    file.write(str(self.ts.obtener(val2,self.ts).line))
-                    file.write("</TD>")
-                    file.write("<TD>")
-                    file.write(str(self.ts.obtener(val2,self.ts).column))
-                    file.write("</TD>")
-                    file.write("</TR>\n")
-            if len(self.local) > 0:
-                for val in self.local:
-                    for val2 in val.simbolos:
-                        file.write("<TR>")
-                        file.write("<TD>")
-                        file.write(val2)
-                        file.write("</TD>")
-                        file.write("<TD>")
-                        if isinstance(self.ts.get(val2,val),ArbolCaracter):
-                            file.write(str(self.ts.get(val2,val).getText()))
-                        else: 
-                            file.write(str(self.ts.get(val2,val)))
-                        file.write("</TD>")
-                        file.write("<TD>")
-                        file.write(str(self.ts.obtener(val2,val).tipo))
-                        file.write("</TD>")
-                        file.write("<TD>")
-                        file.write(str(self.ts.obtener(val2,val).line))
-                        file.write("</TD>")
-                        file.write("<TD>")
-                        file.write(str(self.ts.obtener(val2,val).column))
-                        file.write("</TD>")
-                        file.write("</TR>\n")
-            file.write("</TABLE>")
-            file.write("\n>,];\n")
-            file.write("}")
+                    file = file +("<TR>")
+                    file = file +("<TD>")
+                    file = file +(val2)
+                    file = file +("</TD>")
+                    file = file +("<TD>")
+                    if isinstance(self.ts.get(val2,self.ts),ArbolCaracter):
+                            file = file +(str(self.ts.get(val2,self.ts)))
+                    else: 
+                            file = file +(str(self.ts.get(val2,self.ts)))
+                    file = file +("</TD>")
+                    file = file +("<TD>")
+                    file = file +(str(self.ts.obtener(val2,self.ts).tipo))
+                    file = file +("</TD>")
+                    file = file +("<TD>")
+                    file = file +(str(self.ts.obtener(val2,self.ts).line))
+                    file = file +("</TD>")
+                    file = file +("<TD>")
+                    file = file +(str(self.ts.obtener(val2,self.ts).column))
+                    file = file +("</TD>")
+                    file = file +("</TR>\n")
+            file = file +("</TABLE>")
+            file = file +("\n>,];\n")
+            file = file +("}")
         except:
             print("Error")
         finally:
-            file.close()
-            self.cmd("dot -Tpng TablaSimbolos.dot -o TablaSimbolos.png")
+            return file
 
     def graficarErrores(self):
         try:
-            file = open("TablaError.dot", "w")
-            file.write("digraph tablaErrores{\n")
-            file.write("graph [ratio = fill]; node [label = \"\\N\", shape=plaintext];\n")
-            file.write("graph [bb=\"0,0,352,154\"];\n")
-            file.write("err [label = <\n")
-            file.write("<TABLE ALIGN = \"LEFT\">\n")
-            file.write("<TR><TD>TIPO</TD><TD>DESCRIPCION</TD><TD>LINEA</TD><TD>COLUMNA</TD></TR>\n")
+            file = ""
+            file = file +("digraph tablaErrores{\n")
+            file = file +("graph [ratio = fill]; node [label = \"\\N\", shape=plaintext];\n")
+            file = file +("graph [bb=\"0,0,352,154\"];\n")
+            file = file +("err [label = <\n")
+            file = file +("<TABLE ALIGN = \"LEFT\">\n")
+            file = file +("<TR><TD>TIPO</TD><TD>DESCRIPCION</TD><TD>LINEA</TD><TD>COLUMNA</TD></TR>\n")
             for valor in self.lst_errores:
-                file.write("<TR>")
-                file.write("<TD>")
-                file.write(valor.tipo)
-                file.write("</TD>")
-                file.write("<TD>")
-                file.write(valor.descripcion)
-                file.write("</TD>")
-                file.write("<TD>")
-                file.write(str(valor.line))
-                file.write("</TD>")
-                file.write("<TD>")
-                file.write(str(valor.columna))
-                file.write("</TD>")
-                file.write("</TR>\n")
-            file.write("</TABLE>")
-            file.write("\n>,];\n")
-            file.write("}")
+                file = file +("<TR>")
+                file = file +("<TD>")
+                file = file +(valor.tipo)
+                file = file +("</TD>")
+                file = file +("<TD>")
+                file = file +(valor.descripcion)
+                file = file +("</TD>")
+                file = file +("<TD>")
+                file = file +(str(valor.line))
+                file = file +("</TD>")
+                file = file +("<TD>")
+                file = file +(str(valor.columna))
+                file = file +("</TD>")
+                file = file +("</TR>\n")
+            file = file +("</TABLE>")
+            file = file +("\n>,];\n")
+            file = file +("}")
         except:
             print('Error al graficar')
         finally:
-            file.close()
-            self.cmd("dot -Tpng TablaError.dot -o TablaError.png")
+            return file
     
     def cmd(self,comando):
         subprocess.run(comando,shell=True)

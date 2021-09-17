@@ -32,7 +32,6 @@ class bloqueStruct:
     def __exist(self, indice, claves, diccionario):
         if (indice + 1) < len(claves):
             clave = claves[indice]
-            print("@@@@@@@@@@@@@@@@@@@", clave)
             if clave in diccionario:
                 return  self.__exist(indice + 1, claves, diccionario[clave])
             else:
@@ -47,3 +46,12 @@ class bloqueStruct:
             return diccionario[claves[indice]]
         else:
             return self.__get2(indice + 1, claves, diccionario[claves[indice]])
+    
+    def set(self,claves,valor):
+        self.__set(0,claves,valor,self.diccionario)
+    
+    def __set(self,indice,claves,valor,diccionario):
+        if (indice + 1) == len(claves):
+            diccionario[claves[indice]] = valor
+        else:
+            self.__get2(indice + 1, claves, diccionario[claves[indice]])
