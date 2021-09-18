@@ -46,7 +46,7 @@ reservadas = {
     'mutable': 'MUTABLE',
     'true': 'TRUE',
     'false': 'FALSE',
-    'lenght': 'LENGHT',
+    'length': 'LENGTH',
     'elseif': 'ELSEIF',
     'parse':'PARSE',
     'trunc':'TRUNC',
@@ -91,6 +91,7 @@ tokens = [
     'ID',
     'CARACTER',
     'DOSPUNTOS',
+    'INTERROGACION'
 ] + list(reservadas.values())
 
 
@@ -240,16 +241,16 @@ def p_operacionarreglo(p):
     p[0] = OperacionArregloget(p[1],p[2],p.lineno(1), buscar_columna(p.slice[1]))
 
 def p_asignacionArreglo(p):
-    'asignacion : ID listposiciones IGUAL operacion PUNTOYCOMA'
+    'asignacion : ID listaposiciones IGUAL operacion PUNTOYCOMA'
     p[0] = AsignacionArreglo(p[1],p[2],p[4],p.lineno(1), buscar_columna(p.slice[1]))
 
 def p_listaposiciones(p):
-    'listapoisciones : listaposiciones listaposicion'
+    'listaposiciones : listaposiciones listaposicion'
     p[1].append(p[2])
     p[0] = p[1]
 
 def p_listaposiciones2(p):
-    'listapoisciones : listaposicion'
+    'listaposiciones : listaposicion'
     p[0]= [p[1]]
 
 def p_listaposicion(p):
@@ -548,7 +549,7 @@ def p_operacionLocalLower(p):
     p[0] = OperacionLOWER(p[3],p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_operacionLocalLenght(p):
-    'local    : LENGHT PARIZQ operacion PARDER '
+    'local    : LENGTH PARIZQ operacion PARDER '
     p[0] = OperacionLenght(p[3],p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_operacionLocalparse(p):
@@ -572,12 +573,12 @@ def p_operacionLocaltypeof(p):
     p[0] = OperacionTypeof(p[3],p.lineno(1))
 
 def p_operacionpush(p):
-    'local     : PUSH PARIZQ operacion PARDER  '
-    p[0] = OperacionPush(p[3],p.lineno(1))
+    'sentencia     : PUSH NOT PARIZQ ID COMA operacion PARDER PUNTOYCOMA '
+    p[0] = OperacionPush(p[4],p[6],p.lineno(1))
 
 def p_operacionpop(p):
-    'local     : POP PARIZQ PARDER  '
-    p[0] = OperacionPop(p[3],p.lineno(1))
+    'local     : POP NOT PARIZQ ID PARDER  '
+    p[0] = OperacionPop(p[4],p.lineno(1))
 
 
 def p_operacionValor(p):

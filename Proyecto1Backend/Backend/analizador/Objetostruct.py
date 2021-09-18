@@ -1,8 +1,3 @@
-
-
-import re
-
-
 class bloqueStruct:
     def __init__(self, dicc = {}):
         self.diccionario = dicc

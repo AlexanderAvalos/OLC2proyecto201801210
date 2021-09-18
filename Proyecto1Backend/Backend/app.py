@@ -36,6 +36,7 @@ def TablaSimbolo():
         for val in interpre:
             aux = val.graficar()
         interpre.remove(val);
+    print(aux)
     return aux 
 
 
@@ -45,10 +46,10 @@ def tablaError():
     if len(interpre) > 0:
         for val in interpre:
             aux = val.graficarErrores()
-        interpre.clear()
+        interpre.remove(val);
     else:
         print("error al crear grafica")   
-
+    print(aux)
     return aux
 
 @app.route('/serv', methods = ['POST'])

@@ -377,14 +377,15 @@ class OperacionTypeof(Instruccion):
 
 #arreglos
 class OperacionPush(Instruccion):
-    def __init__(self,valor,linea):
+    def __init__(self,arreglo,valor,linea):
+        self.arreglo = arreglo
         self.valor = valor
         self.linea = linea
         super().__init__()
 
 class OperacionPop(Instruccion):
-    def __init__(self,valor,linea):
-        self.valor = valor
+    def __init__(self,arreglo,linea):
+        self.arreglo = arreglo
         self.linea = linea
         super().__init__()
 

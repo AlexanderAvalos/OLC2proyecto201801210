@@ -1,3 +1,4 @@
+from expresiones import *
 from enum import Enum
 
 class Tipo(Enum):
@@ -48,7 +49,7 @@ class Simbolo:
             elif valor == None :
                 return Tipo.NULO
             else: 
-                return Tipo.CHAR
+                return TIPO_ESTRUCTURAS.CONSTRUCTOR
 
 
 class TablaSimbolos:
@@ -79,8 +80,9 @@ class TablaSimbolos:
         return False
     
     def obtener(self,id,tabla):
+      
         if id in tabla.simbolos:
-                return tabla.simbolos[id]
+            return tabla.simbolos[id]
         if tabla.padre: 
             return self.get(id,tabla.padre)
         return False
@@ -95,5 +97,3 @@ class TablaSimbolos:
     def actualizar(self, simbolo):
         self.simbolos[simbolo.id].valor.set(simbolo.valor.get())
 
-    def referenciar(self,id,valor):
-        self.simbolo[id].valor = valor

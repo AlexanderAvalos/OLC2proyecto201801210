@@ -35,3 +35,5 @@ class OPERACION_NATIVA(Enum):
 class TIPO_ESTRUCTURAS(Enum):
     CONSTRUCTOR= 1
     FUNCION= 2
+    ARREGLO = 3
+    STRUCT = 4
