@@ -146,7 +146,7 @@ class interprete:
                    return op1.replace('\'', '') * op2
                 else: 
                     return op1 ** op2 
-            if operacion.operacion == OPERACION_NUMERICA.SUMA:
+            elif operacion.operacion == OPERACION_NUMERICA.SUMA:
                 return self.procesar_valor(operacion.opIzq,ts) + self.procesar_valor(operacion.opDer,ts)
             elif operacion.operacion == OPERACION_NUMERICA.RESTA:
                 return self.procesar_valor(operacion.opIzq,ts) - self.procesar_valor(operacion.opDer,ts)
@@ -154,6 +154,10 @@ class interprete:
                 return self.procesar_valor(operacion.opIzq,ts) / self.procesar_valor(operacion.opDer,ts)
             elif operacion.operacion == OPERACION_NUMERICA.MODULAR:
                 return self.procesar_valor(operacion.opIzq,ts) % self.procesar_valor(operacion.opDer,ts)
+            else:
+                nuevo = err.TokenError("Semantico","Error al realizar la operacion Numerica ",  0,0)
+                self.lst_errores.append(nuevo)
+                return None
         except:
             nuevo = err.TokenError("Semantico","Error al realizar la operacion Numerica ",  0,0)
             self.lst_errores.append(nuevo)
@@ -172,6 +176,10 @@ class interprete:
             elif operacion.operacion == OPERACION_RELACIONAL.DIFERENTE: return True if(op1!=op2) else False
             elif operacion.operacion == OPERACION_RELACIONAL.MAYORQUE: return True if(op1>=op2) else False
             elif operacion.operacion == OPERACION_RELACIONAL.MENORQUE: return True if(op1 <= op2) else False
+            else:
+                nuevo = err.TokenError("Semantico","Error al realizar la operacion Relacional ",  0,0)
+                self.lst_errores.append(nuevo)
+                return None
         except : 
             nuevo = err.TokenError("Semantico","Error al realizar la operacion Relacion desconocida", 0,0)
             self.lst_errores.append(nuevo)
@@ -204,8 +212,12 @@ class interprete:
                 return True if (izq and der) else False
             elif operacion.operacion == OPERACION_LOGICA.OR:
                 return True if (izq or der) else False
+            else:
+                nuevo = err.TokenError("Semantico","Error al realizar la operacion Logica ",  0,0)
+                self.lst_errores.append(nuevo)
+                return None
         except:
-            nuevo = err.TokenError("Semantico","Operacion desconocida", 0,0)
+            nuevo = err.TokenError("Semantico","Error al realizar la operacion Logica", 0,0)
             self.lst_errores.append(nuevo)
 
 #nativas
@@ -216,28 +228,28 @@ class interprete:
         elif operacion.tipo == Tipo.DECIMAL:
             return float(operacion.valor)
         else:
-            nuevo = err.TokenError("Semantico","tipo desconocido", operacion.linea)
+            nuevo = err.TokenError("Semantico","tipo desconocido", operacion.linea,0)
             self.lst_errores.append(nuevo)
 
     def procesar_trunc(self,operacion):
         if isinstance(operacion.valor, float):
              return int(float(operacion.valor))
         else: 
-            nuevo = err.TokenError("Semantico","tipo no es float", operacion.linea,)
+            nuevo = err.TokenError("Semantico","tipo no es float", operacion.linea,0)
             self.lst_errores.append(nuevo)
     
     def procesar_float(self,operacion):
         if isinstance(operacion.valor, int):
             return float(operacion.valor)
         else: 
-            nuevo = err.TokenError("Semantico","Valor no es Entero", operacion.linea,operacion.columna)
+            nuevo = err.TokenError("Semantico","Valor no es Entero", operacion.linea,0)
             self.lst_errores.append(nuevo)
 
     def procesar_Fstring(self,operacion,ts):
         if operacion.valor != None:
             return  "\""+ str(self.procesar_valor(operacion.valor,ts)) + "\""
         else: #faltan arreglos
-            nuevo = err.TokenError("Semantico","Operacion desconocida", operacion.linea,operacion.columna)
+            nuevo = err.TokenError("Semantico","error al convertir en string", operacion.linea,0)
             self.lst_errores.append(nuevo)
     
     def procesar_typeof(self,operacion,ts):
@@ -273,7 +285,7 @@ class interprete:
             elif tipo == Tipo.NULO:
                 return "NOTHING"
             else:
-                nuevo = err.TokenError("Semantico","Tipo Desconocido", operacion.linea,operacion.columna)
+                nuevo = err.TokenError("Semantico","Tipo Desconocido", operacion.linea,0)
                 self.lst_errores.append(nuevo)
 
 #nativas Parte 2
@@ -413,20 +425,20 @@ class interprete:
         op1 =  self.procesar_operacion(instr.valor,ts)
         if isinstance(op1, ArbolCaracter):
             if ts.verificar(instr.id, ts) == False:
-                simbolo = TS.Simbolo(instr.id,op1.getText().replace("\"", "") , Tipo.STRING, instr.linea, instr.columna)
+                simbolo = TS.Simbolo(instr.id,op1.getText().replace("\"", "") , Tipo.STRING, "Global",instr.linea, instr.columna)
                 ts.agregar(simbolo)
             elif instr.valor != None:
-                simbolo = TS.Simbolo(instr.id, op1.getText().replace("\"", ""), Tipo.STRING, instr.linea, instr.columna)
+                simbolo = TS.Simbolo(instr.id, op1.getText().replace("\"", ""), Tipo.STRING, "Global",instr.linea, instr.columna)
                 ts.actualizar(simbolo)
             else: 
-                nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id), instr.linea,instr.columna)
+                nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id),instr.linea,instr.columna)
                 self.lst_errores.append(nuevo)
         else: 
             if ts.verificar(instr.id, ts) == False:
-                simbolo = TS.Simbolo(instr.id,op1 , instr.tipo, instr.linea, instr.columna)
+                simbolo = TS.Simbolo(instr.id,op1 , instr.tipo, "Global", instr.linea, instr.columna)
                 ts.agregar(simbolo)
             elif instr.valor != None:
-                simbolo = TS.Simbolo(instr.id, op1, instr.tipo, instr.linea, instr.columna)
+                simbolo = TS.Simbolo(instr.id, op1, instr.tipo,  "Global",instr.linea, instr.columna)
                 ts.actualizar(simbolo)
             else: 
                 nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id), instr.linea,instr.columna)
@@ -489,6 +501,7 @@ class interprete:
             if val != None:
                 return val
         
+        
 #sentencias while
     
     def procesar_while(self,instr,ts):
@@ -509,14 +522,14 @@ class interprete:
     def procesar_for(self,instr,ts):
 
         val = None
-        simbolo = TS.Simbolo(instr.id, 0, None, instr.linea, 0)
+        simbolo = TS.Simbolo(instr.id, 0, None,'for', instr.linea, 0)
         ts.agregar(simbolo)
         if isinstance(instr.condicional, condicionalSimple):
             op1 = self.procesar_operacion(instr.condicional.operacion,ts)
             if isinstance(op1, ArbolCaracter):
                 variable = instr.id
                 for variable in self.procesar_operacion(instr.condicional.operacion,ts).getText():
-                    simbolo = TS.Simbolo(instr.id, variable, str, instr.linea, 0)
+                    simbolo = TS.Simbolo(instr.id, variable, str,'for', instr.linea, 0)
                     ts.actualizar(simbolo)
                     if self.cont_global == 1:
                         self.cont_global = 0
@@ -532,7 +545,7 @@ class interprete:
             else : 
                 variable = instr.id
                 for variable in op1:
-                    simbolo = TS.Simbolo(instr.id, variable, str, instr.linea, 0)
+                    simbolo = TS.Simbolo(instr.id, variable, str, 'for',instr.linea, 0)
                     ts.actualizar(simbolo)
                     if self.cont_global == 1:
                         self.cont_global = 0
@@ -550,21 +563,23 @@ class interprete:
             op1 = self.procesar_operacion(instr.condicional.rangoizq,ts)
             op2 = self.procesar_operacion(instr.condicional.rangoder,ts)
             variable = instr.id
-            print(op1 ," : ", op2)
-            for variable in range(op1, op2):
-                simbolo = TS.Simbolo(instr.id, variable, None, instr.linea, 0)
-                ts.actualizar(simbolo)
-                if self.cont_global == 1:
-                        self.cont_global = 0
-                        continue
-                if self.break_global == 2:
-                        self.break_global = 0
-                        break
-                if self.return_global == 3:
-                        self.return_global = 0
-                        return 
-                else: 
-                    val = self.procesar_instrucciones(instr.sentencias,ts)
+            if op1 <= op2:
+                for variable in range(op1, op2):
+                    simbolo = TS.Simbolo(instr.id, variable, None, 'for',instr.linea, 0)
+                    ts.actualizar(simbolo)
+                    if self.cont_global == 1:
+                            self.cont_global = 0
+                            continue
+                    if self.break_global == 2:
+                            self.break_global = 0
+                            break
+                    if self.return_global == 3:
+                            self.return_global = 0
+                            return 
+                    else: 
+                        val = self.procesar_instrucciones(instr.sentencias,ts)
+            else: 
+                print("indice izquierdo mayor al derecho")
         else: 
             nuevo = err.TokenError("Semantico","Condicional \"{0}\" desconocido".format(instr.condicional), instr.linea,instr.columna)
             self.lst_errores.append(nuevo)
@@ -573,8 +588,16 @@ class interprete:
 
 #funciones 
     def procesar_Funciones(self,inst,ts):
-        self.listaFunciones.append(Funcionesaux(inst.idFuncion, inst.parametros, inst.sentencias,TIPO_ESTRUCTURAS.FUNCION))
-
+        verificar = False
+        if len(self.listaFunciones) > 0:
+            for func in self.listaFunciones:
+                if func.idfuncion == inst.idFuncion:
+                    verificar = True
+                    print('ya existe funcion con ese nombre')
+            if verificar == False:
+                self.listaFunciones.append(Funcionesaux(inst.idFuncion, inst.parametros, inst.sentencias,TIPO_ESTRUCTURAS.FUNCION))
+        elif len(self.listaFunciones) == 0:
+            self.listaFunciones.append(Funcionesaux(inst.idFuncion, inst.parametros, inst.sentencias,TIPO_ESTRUCTURAS.FUNCION))
 #llamada
     def procesar_llamada(self, inst, ts):
         #por valor
@@ -588,7 +611,7 @@ class interprete:
                             if len(func.parametros) == len(inst.parametros):
                                 cont = 0
                                 while cont < len(func.parametros):
-                                    simbololocal = TS.Simbolo(func.parametros[cont].idparametro,self.procesar_operacion(inst.parametros[cont],ts),func.parametros[cont].tipo,func.parametros[cont].linea,func.parametros[cont].columna)
+                                    simbololocal = TS.Simbolo(func.parametros[cont].idparametro,self.procesar_operacion(inst.parametros[cont],ts),func.parametros[cont].tipo,inst.idfuncion,func.parametros[cont].linea,func.parametros[cont].columna)
                                     tablalocal.agregar(simbololocal)
                                     cont = cont +1
                             else: 
@@ -614,7 +637,8 @@ class interprete:
                                     struct[key] = valor
                             return struct
                         else:
-                            print("Los valores no coinciden")
+                            nuevo = err.TokenError("Semantico","valores no coinciden",0,0)
+                            self.lst_errores.append(nuevo)
         else:
                 nuevo = err.TokenError("Semantico","Funciones no declaradas", 0,0)
                 self.lst_errores.append(nuevo)
@@ -628,7 +652,18 @@ class interprete:
 #structs
 
     def procesar_struct(self,inst,ts):
-        self.listaFunciones.append(Funcionesaux(inst.objeto, 0, 0,TIPO_ESTRUCTURAS.CONSTRUCTOR))
+        verificar = False
+        if len(self.listaFunciones) > 0:
+            for func in self.listaFunciones:
+                if func.idfuncion == inst.objeto:
+                    verificar = True
+                    print('ya existe funcion con ese nombre')
+                    return None
+            if verificar == False:
+                self.listaFunciones.append(Funcionesaux(inst.objeto, 0, 0,TIPO_ESTRUCTURAS.CONSTRUCTOR))
+        elif len(self.listaFunciones) == 0:
+            self.listaFunciones.append(Funcionesaux(inst.objeto, 0, 0,TIPO_ESTRUCTURAS.CONSTRUCTOR))
+        
         clave = inst.objeto
         objeto = {}
         for val in inst.listaAtributos:
@@ -637,8 +672,10 @@ class interprete:
                 objeto[val.id] = tipo
             else:
                 objeto[val.id] = ''
+            simboloaux = TS.Simbolo(val.id+"a",'', val.tipo, clave,inst.linea, inst.columna)
+            ts.agregar(simboloaux)
         self.structs.agregar(clave,objeto)
-        simbolo = TS.Simbolo(clave,objeto, TIPO_ESTRUCTURAS.STRUCT, inst.linea, inst.columna)
+        simbolo = TS.Simbolo(clave,objeto, TIPO_ESTRUCTURAS.STRUCT, "Global",inst.linea, inst.columna)
         ts.agregar(simbolo)
 
 #operacion struct
@@ -663,7 +700,6 @@ class interprete:
 #asginacion struct
 
     def procesar_asignacionstruct(self,expresion,ts):
-
         if ts.verificar(expresion.idstruct,ts):
             struct = ts.get(expresion.idstruct,ts)
             struct = st.bloqueStruct(struct)
@@ -699,7 +735,7 @@ class interprete:
                 arr.append(op1.getText().replace("\"",""))
             else: 
                 arr.append(self.procesar_operacion(val,ts))
-        simbolo = TS.Simbolo(inst.id,arr, TIPO_ESTRUCTURAS.ARREGLO, inst.linea, inst.columna)
+        simbolo = TS.Simbolo(inst.id,arr, TIPO_ESTRUCTURAS.ARREGLO, "Global",inst.linea, inst.columna)
         ts.agregar(simbolo)
 
     def procesar_operacionArreglo(self,operacion,ts):
@@ -714,18 +750,17 @@ class interprete:
     def procesar_operacionArregloget(self,operacion,ts):
         if ts.verificar(operacion.id,ts):
             arr = ts.get(operacion.id,ts)
-            print("============== ARRAY:", arr)
             arr = arre.bloqueArreglo(arr)
             posiciones = []
             
             for val in operacion.listaposicion:
                 posiciones.append(self.procesar_operacion(val.operacion,ts))
 
-            print("POSICIONES A BUSCAR:", posiciones)
             if arr.existe(posiciones):
                 return arr.obtener(posiciones)
             else:
-                print('Indice Fuera de rango')
+                nuevo = err.TokenError("Semantico","indices fuera de rango", operacion.linea,operacion.columna)
+                self.lst_errores.append(nuevo)
                 return None
         
     def procesar_asignacionArreglo(self,inst,ts):
@@ -735,12 +770,13 @@ class interprete:
             posiciones = []
             for val in inst.listaposicion:
                 posiciones.append(self.procesar_operacion(val.operacion,ts))
-                
+
             if arr.existe(posiciones):
                 valor = self.procesar_operacion(inst.operacion,ts)
                 arr.actualizar(posiciones,valor)
             else:
-                print('Indice Fuera de rango')
+                nuevo = err.TokenError("Semantico","indices fuera de rango", inst.linea,inst.columna)
+                self.lst_errores.append(nuevo)
             
 
     def procesar_arreglopush(self, expresion,ts):
@@ -748,9 +784,11 @@ class interprete:
                 arr = ts.get(expresion.arreglo,ts)
                 arr = arre.bloqueArreglo(arr)
                 arr.agregar(self.procesar_operacion(expresion.valor,ts))
-                simbolo = TS.Simbolo(expresion.arreglo, arr.arreglo, TIPO_ESTRUCTURAS.ARREGLO, expresion.linea, 0)
+                simbolo = TS.Simbolo(expresion.arreglo, arr.arreglo, TIPO_ESTRUCTURAS.ARREGLO,"Global", expresion.linea, 0)
                 ts.actualizar(simbolo)
-
+            else:
+                nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo), 0,0)
+                self.lst_errores.append(nuevo)
 
     def procesar_arreglopop(self,expresion,ts):
         if ts.verificar(expresion.arreglo,ts):
@@ -758,6 +796,9 @@ class interprete:
                 arr = arre.bloqueArreglo(arr)
                 val = arr.sacar()
                 return val
+        else:
+            nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo), 0,0)
+            self.lst_errores.append(nuevo)
 
 # recorrer instrucciones
     def procesar_instrucciones(self, Instruccion, ts):
@@ -817,20 +858,17 @@ class interprete:
             file = file + ("graph [bb=\"0,0,352,154\"];\n")
             file = file + ("err [label = <\n")
             file = file +("<TABLE ALIGN = \"LEFT\">\n")
-            file = file +("<TR><TD>IDENTIFICADOR</TD><TD>VALOR</TD><TD>TIPO</TD><TD>LINEA</TD><TD>COLUMNA</TD></TR>\n") 
+            file = file +("<TR><TD>IDENTIFICADOR</TD><TD>TIPO</TD><TD>AMBITO</TD><TD>LINEA</TD><TD>COLUMNA</TD></TR>\n") 
             for val2 in self.ts.simbolos:
                     file = file +("<TR>")
                     file = file +("<TD>")
                     file = file +(val2)
                     file = file +("</TD>")
                     file = file +("<TD>")
-                    if isinstance(self.ts.get(val2,self.ts),ArbolCaracter):
-                            file = file +(str(self.ts.get(val2,self.ts)))
-                    else: 
-                            file = file +(str(self.ts.get(val2,self.ts)))
+                    file = file +(str(self.ts.obtener(val2,self.ts).tipo))
                     file = file +("</TD>")
                     file = file +("<TD>")
-                    file = file +(str(self.ts.obtener(val2,self.ts).tipo))
+                    file = file +(str(self.ts.obtener(val2,self.ts).ambito))
                     file = file +("</TD>")
                     file = file +("<TD>")
                     file = file +(str(self.ts.obtener(val2,self.ts).line))
@@ -839,6 +877,25 @@ class interprete:
                     file = file +(str(self.ts.obtener(val2,self.ts).column))
                     file = file +("</TD>")
                     file = file +("</TR>\n")
+            if len(self.local) > 0:
+                for val2 in self.local[len(self.local)-1].simbolos:
+                    file = file +("<TR>")
+                    file = file +("<TD>")
+                    file = file +(val2)
+                    file = file +("</TD>")
+                    file = file +("<TD>")
+                    file = file +(str(self.ts.obtener(val2,self.local[len(self.local)-1]).tipo))
+                    file = file +("</TD>")
+                    file = file +("<TD>")
+                    file = file +(str(self.ts.obtener(val2,self.local[len(self.local)-1]).ambito))
+                    file = file +("</TD>")
+                    file = file +("<TD>")
+                    file = file +(str(self.ts.obtener(val2,self.local[len(self.local)-1]).line))
+                    file = file +("</TD>")
+                    file = file +("<TD>")
+                    file = file +(str(self.ts.obtener(val2,self.local[len(self.local)-1]).column))
+                    file = file +("</TD>")
+                    file = file +("</TR>\n")        
             file = file +("</TABLE>")
             file = file +("\n>,];\n")
             file = file +("}")

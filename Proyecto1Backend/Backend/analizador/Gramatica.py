@@ -166,7 +166,7 @@ def t_COMENTARIOSIMPLE(t):
 
 
 def t_COMENTARIOMULTIPLE(t):
-    r'\#=(.|\n)*?=\#'
+    r'\#\=(.|\n)*?\=\#'
     t.lexer.lineno += t.value.count('\n')
 
 

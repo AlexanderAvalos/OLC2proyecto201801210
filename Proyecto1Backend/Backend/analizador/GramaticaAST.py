@@ -20,7 +20,7 @@ class NodoH:
         
 
 reservadas = {
-    'nothing': 'NULO',
+    'nothing': 'NOTHING',
     'int64': 'INT64',
     'float64': 'FLOAT64', 
     'bool': 'BOOL',
@@ -170,13 +170,14 @@ def t_COMENTARIOSIMPLE(t):
 
 
 def t_COMENTARIOMULTIPLE(t):
-    r'\#=(.|\n)*?=\#'
+    r'\#\=(.|\n)*?\=\#'
     t.lexer.lineno += t.value.count('\n')
 
 
 def t_NUEVALINEA(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
+
 def t_error(t):
    t.lexer.skip(1)
 
@@ -222,11 +223,13 @@ def p_instrucciones2(p):
     p[0] = Nodo([p[1].instruccion], [nodo])
 
 def p_instruccion(p):
-    ''' instruccion : asignacion 
-                    | nativa  
+    ''' instruccion : asignacion
+                    | arreglos
+                    | nativa
                     | sentencia
                     | funcion
                     | callfuncion
+                    | structs
     '''
     p[0] = p[1]
 
@@ -240,13 +243,177 @@ def p_sentencia(p):
     '''
     p[0] = p[1]
 
+# arreglos 
+
+def p_declaracionarreglos(p):
+    'arreglos : ID IGUAL CORIZQ valores CORDER PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"arreglos",[])
+    nodo.agregar(NodoH(getIndex(),str(p[1]),None))
+    nodo.agregar(NodoH(getIndex(),"=",None))
+    nodo.agregar(NodoH(getIndex(),"[",None))
+    for val in p[4].nodo:
+        nodo.agregar(val)
+    nodo.agregar(NodoH(getIndex(),"]",None))
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] = Nodo(DeclaracionArreglos(p[1],p[4],p.lineno(1), buscar_columna(p.slice[1])),nodo)
+
+
+def p_operacionarreglos(p):
+    'operacion : CORIZQ  valores CORDER'
+    nodo = NodoH(getIndex(),"operacion",[])
+    nodo.agregar(NodoH(getIndex(),"[",None))
+    for val in p[4].nodo:
+        nodo.agregar(val)
+    nodo.agregar(NodoH(getIndex(),"]",None))
+    p[0] = Nodo(OperacionArreglo(p[2],p.lineno(1), buscar_columna(p.slice[1])),nodo)
+
+def p_operacionarreglo(p):
+    'operacion : ID listaposiciones'
+    nodo = NodoH(getIndex(),"operacion",[])
+    nodo.agregar(NodoH(getIndex(),str(p[1]),None))
+    for val in p[2].nodo:
+        nodo.agregar(val)
+    p[0] = Nodo(OperacionArregloget(p[1],p[2],p.lineno(1), buscar_columna(p.slice[1])),nodo)
+
+def p_asignacionArreglo(p):
+    'asignacion : ID listaposiciones IGUAL operacion PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"asginacion",[])
+    nodo.agregar(NodoH(getIndex(),str(p[1]),None))
+    for val in p[2].nodo:
+        nodo.agregar(val)
+    nodo.agregar(NodoH(getIndex(),"=",None))
+    nodo.agregar(p[4].nodo)
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] = Nodo(AsignacionArreglo(p[1],p[2],p[4],p.lineno(1), buscar_columna(p.slice[1])),nodo)
+
+def p_listaposiciones(p):
+    'listaposiciones : listaposiciones listaposicion'
+    p[1].instruccion.append(p[2].instruccion)
+    nodoaux = NodoH(getIndex(),"listaposiciones",[])
+    nodoaux.agregar(p[2].nodo)
+    p[1].nodo.append(nodoaux)
+    nodo = NodoH(getIndex(),"listaposicion",p[1].nodo)
+    p[0]= Nodo(p[1].instruccion, [nodo] )
+
+def p_listaposiciones2(p):
+    'listaposiciones : listaposicion'
+    nodo = NodoH(getIndex(),"listaposicion",[p[1].nodo])
+    p[0] = Nodo([p[1].instruccion], [nodo])
+
+def p_listaposicion(p):
+    'listaposicion : CORIZQ operacion CORDER'
+    nodo = NodoH(getIndex(),"listaposicion",[])
+    nodo.agregar(NodoH(getIndex(),"[",None))
+    nodo.agregar(p[2].nodo)
+    nodo.agregar(NodoH(getIndex(),"]",None))
+    p[0] = Nodo(listaindicies(p[2],p.lineno(1), buscar_columna(p.slice[1])),nodo)
+
+
+# delcaracion struct
+def p_structMutable(p):
+    'structs : MUTABLE STRUCTR ID listaAtributos END PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"structs",[])
+    nodo.agregar(NodoH(getIndex(),"MUTABLE",None))
+    nodo.agregar(NodoH(getIndex(),"STRUCT",None))
+    nodo.agregar(NodoH(getIndex(),str(p[3]),None))
+    for val in p[4].nodo:
+        nodo.agregar(val)
+    nodo.agregar(NodoH(getIndex(),"END",None))
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] = Nodo(StructsIn(p[3], p[4], p.lineno(1), buscar_columna(p.slice[1])),nodo)
+
+
+def p_structInmutable(p):
+    'structs : STRUCTR ID listaAtributos END PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"structs",[])
+    nodo.agregar(NodoH(getIndex(),"STRUCT",None))
+    nodo.agregar(NodoH(getIndex(),str(p[2]),None))
+    for val in p[3].nodo:
+        nodo.agregar(val)
+    nodo.agregar(NodoH(getIndex(),"END",None))
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] = Nodo(StructsIn(p[2], p[3], p.lineno(1), buscar_columna(p.slice[1])),nodo)
+
+def p_listaatributos(p):
+    'listaAtributos : listaAtributos lista'
+    p[1].instruccion.append(p[2].instruccion)
+    nodoaux = NodoH(getIndex(),"listaAtributos",[])
+    nodoaux.agregar(p[2].nodo)
+    p[1].nodo.append(nodoaux)
+    nodo = NodoH(getIndex(),"lista",p[1].nodo)
+    p[0]= Nodo(p[1].instruccion, [nodo] )
+
+def p_listaAtributos(p):
+    'listaAtributos : lista '
+    nodo = NodoH(getIndex(),"lista",[p[1].nodo])
+    p[0] = Nodo([p[1].instruccion], [nodo])
+
+def p_lista(p):
+    'lista : ID DOBLEPUNTO tipo PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"listaposicion",[])
+    nodo.agregar(NodoH(getIndex(),str(p[1]),None))
+    nodo.agregar(NodoH(getIndex(),"::",None))
+    nodo.agregar(NodoH(getIndex(),str(p[3]),None))
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] = Nodo(StructAtributos(p[1],p[3],p.lineno(1), buscar_columna(p.slice[1])),nodo)
+
+def p_lista2(p):
+    'lista : ID PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"listaposicion",[])
+    nodo.agregar(NodoH(getIndex(),str(p[1]),None))
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] = Nodo(StructAtributos(p[1],None,p.lineno(1), buscar_columna(p.slice[1])),nodo)
+
+
+#struct leer
+def p_operacionStruct(p):
+    'operacion : ID operacionstructs'
+    nodo = NodoH(getIndex(),"listaposicion",[])
+    nodo.agregar(NodoH(getIndex(),str(p[1]),None))
+    for val in p[2].nodo:
+        nodo.agregar(val)
+    p[0] = Nodo(OperacionStruct(p[1],p[2],p.lineno(1), buscar_columna(p.slice[1])),nodo)
+
+
+def p_operacionStruct2(p):
+    'operacionstructs : operacionstructs operacionstruct'
+    p[1].instruccion.append(p[2].instruccion)
+    nodoaux = NodoH(getIndex(),"operacionstructs",[])
+    nodoaux.agregar(p[2].nodo)
+    p[1].nodo.append(nodoaux)
+    nodo = NodoH(getIndex(),"opreacionstruct",p[1].nodo)
+    p[0]= Nodo(p[1].instruccion, [nodo] )
+
+def p_operacionstruct3(p):
+    'operacionstructs : operacionstruct'
+    nodo = NodoH(getIndex(),"operacionstruct",[p[1].nodo])
+    p[0] = Nodo([p[1].instruccion], [nodo])
+
+def p_operacionstruct4(p):
+    'operacionstruct : PUNTO ID'
+    p[0]= Nodo(OperacionVariable(p[2], p.lineno(2), buscar_columna(p.slice[2])),NodoH(getIndex(),str(p[2]),None))
+
+
+#asignacion struct
+
+def p_asignacionstruct(p):
+    'asignacion : ID operacionstructs IGUAL operacion PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"asignacion",[])
+    nodo.agregar(NodoH(getIndex(),str(p[1]),None))
+    for val in p[2].nodo:
+        nodo.agregar(val)
+    nodo.agregar(NodoH(getIndex(),"=",None))
+    nodo.agregar(p[4].nodo)
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] = Nodo(AsginacionStruc(p[1],p[2],p[4],p.lineno(1),buscar_columna(p.slice[1])),nodo)
+
 
 def p_asignacion(p):
     'asignacion : ID IGUAL operacion DOBLEPUNTO tipo PUNTOYCOMA'
     nodo = NodoH(getIndex(),"instruccion",[])
     nodo.agregar(NodoH(getIndex(),str(p[1]),None))
     nodo.agregar(NodoH(getIndex(),"=",None))
-    nodo.agregar(p[3].nodo)
+    nodo.agregar(NodoH(getIndex(),str(p[3]),None))
     nodo.agregar(NodoH(getIndex(),"::",None))
     nodo.agregar(NodoH(getIndex(),str(p[5]),None))
     nodo.agregar(NodoH(getIndex(),";",None))
@@ -278,7 +445,7 @@ def p_asignacion4(p):
     nodo.agregar(NodoH(getIndex(),"GLOBAL",None))
     nodo.agregar(NodoH(getIndex(),str(p[2]),None))
     nodo.agregar(NodoH(getIndex(),"=",None))
-    nodo.agregar(p[3].nodo)
+    nonodo.agregar(NodoH(getIndex(),str(p[3]),None))
     nodo.agregar(NodoH(getIndex(),"::",None))
     nodo.agregar(NodoH(getIndex(),str(p[5]),None))
     nodo.agregar(NodoH(getIndex(),";",None))
@@ -806,7 +973,7 @@ def p_tipo(p):
                 |   CHAR
                 |   ID
                 |   STRING
-                |   NULO
+                |   NOTHING
     '''
     p[0] = p[1]
 
@@ -844,7 +1011,9 @@ def p_valorTrue(p):
     'valor : FALSE'
     p[0]= Nodo(OperacionBooleana(p[1], p.lineno(1), buscar_columna(p.slice[1])),NodoH(getIndex(),str(p[1]),None))
 
-
+def p_valorNulo(p):
+    'valor : NOTHING'
+    p[0]= Nodo(OperacionNULO(p[1],p.lineno(1), buscar_columna(p.slice[1])),NodoH(getIndex(),str(p[1]),None))
 
 input = ""
 parser = yacc.yacc(write_tables = True)

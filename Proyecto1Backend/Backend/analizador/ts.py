@@ -29,8 +29,9 @@ class Simbolo:
         self.id = args[0]
         self.valor = ref(args[1])
         self.tipo = self.verficar(args[1],args[2])
-        self.line = args[3]
-        self.column = args[4]
+        self.ambito = args[3]
+        self.line = args[4]
+        self.column = args[5]
 
     def verficar(self, valor, tipo):
         if tipo != None:

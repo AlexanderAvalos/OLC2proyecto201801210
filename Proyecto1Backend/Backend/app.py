@@ -24,7 +24,6 @@ def recibir2():
     graficar = ast.GraficarArbol(args=(nodo,"AST"))
     astsa = graficar.run()
     gast.restart()
-    
     return  astsa
 
 
@@ -36,7 +35,7 @@ def TablaSimbolo():
         for val in interpre:
             aux = val.graficar()
         interpre.remove(val);
-    print(aux)
+        print(aux)
     return aux 
 
 
@@ -49,7 +48,6 @@ def tablaError():
         interpre.remove(val);
     else:
         print("error al crear grafica")   
-    print(aux)
     return aux
 
 @app.route('/serv', methods = ['POST'])
