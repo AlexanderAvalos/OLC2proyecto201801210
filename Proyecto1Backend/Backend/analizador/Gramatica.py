@@ -16,9 +16,9 @@ def agregarError(tipo, descripcion, linea, columna):
 
 reservadas = {
     'nothing': 'NOTHING',
-    'int64': 'INT64',
-    'float64': 'FLOAT64', 
-    'bool': 'BOOL',
+    'Int64': 'INT64',
+    'Float64': 'FLOAT64', 
+    'Bool': 'BOOL',
     'char': 'CHAR',
     'string': 'STRING',
     'parse': 'PARSE',
@@ -54,7 +54,8 @@ reservadas = {
     'pop':'POP',
     'float':'FLOAT',
     'typeof':'TYPEOF',
-    'global':'GLOBAL'
+    'global':'GLOBAL',
+    'local': 'LOCALR' 
 }
 
 
@@ -352,19 +353,28 @@ def p_parametrossimple2(p):
 #asignacion simple
 def p_asignacion(p):
     'asignacion : ID IGUAL operacion DOBLEPUNTO tipo PUNTOYCOMA'
-    p[0] = Declaracion(p[1],p[3],p[5],p.lineno(6),buscar_columna(p.slice[1]))
+    p[0] = Declaracion(None,p[1],p[3],p[5],p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_asignacion2(p):
     'asignacion : ID IGUAL operacion PUNTOYCOMA'
-    p[0] = Declaracion(p[1],p[3],None,p.lineno(4),buscar_columna(p.slice[1]))
+    p[0] = Declaracion(None,p[1],p[3],None,p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_asignacion3(p):
     'asignacion : GLOBAL ID IGUAL operacion PUNTOYCOMA'
-    p[0] = Declaracion(p[2],p[4],None,p.lineno(2),buscar_columna(p.slice[1]))
+    p[0] = Declaracion(p[1],p[2],p[4],None,p.lineno(2),buscar_columna(p.slice[1]))
 
 def p_asignacion4(p):
     'asignacion : GLOBAL ID IGUAL operacion DOBLEPUNTO tipo PUNTOYCOMA'
-    p[0] = Declaracion(p[2],p[4],p[6],p.lineno(2),buscar_columna(p.slice[1]))
+    p[0] = Declaracion(p[1],p[2],p[4],p[6],p.lineno(2),buscar_columna(p.slice[1]))
+
+def p_asignacion5(p):
+    'asignacion : LOCALR ID IGUAL operacion PUNTOYCOMA'
+    p[0] = Declaracion(p[1],p[2],p[4],None,p.lineno(2),buscar_columna(p.slice[1]))
+
+def p_asignacion6(p):
+    'asignacion : LOCALR ID IGUAL operacion DOBLEPUNTO tipo PUNTOYCOMA'
+    p[0] = Declaracion(p[1],p[2],p[4],p[6],p.lineno(2),buscar_columna(p.slice[1]))
+
 #sentencias 
 
 def p_sentencia(p):

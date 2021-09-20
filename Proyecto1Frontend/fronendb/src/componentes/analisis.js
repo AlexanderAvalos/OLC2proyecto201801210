@@ -93,11 +93,11 @@ export default function Analisis(){
                     
                     
                 </Container>
-                <body>
-                <Graphviz dot={as}/>
+                <div><Graphviz dot={as}/>
                 <Graphviz dot={ts}/>
-                <Graphviz dot={te}/>
-                </body>
+                <Graphviz dot={te}/></div>
+                
+                
                 
             </>
         );

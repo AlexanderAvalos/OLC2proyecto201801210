@@ -48,6 +48,7 @@ def tablaError():
         interpre.remove(val);
     else:
         print("error al crear grafica")   
+    print(aux)
     return aux
 
 @app.route('/serv', methods = ['POST'])

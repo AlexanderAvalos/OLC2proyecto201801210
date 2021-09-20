@@ -20,8 +20,6 @@ class bloqueArreglo:
                 else:
                     return self.__exist(indice + 1, posiciones, arreglo[index])
             else:
-                print("FUERA DE RANGO DENTRO DEL ARREGLO")
-                print("SE BUSCA POSICION:", index, "EN",arreglo)
                 return False
         else:
             print("FUERA DE RANGO")
@@ -37,7 +35,6 @@ class bloqueArreglo:
             return self.__get(indice +1, posiciones, arreglo[posiciones[indice]])
 
     def actualizar(self,lst_posiciones,valor):
-        print("SE VAN A ACTUALIZAR",valor)
         self.__update(0,lst_posiciones,valor,self.arreglo)
     
     def __update(self,indice,posiciones,valor,arreglo):

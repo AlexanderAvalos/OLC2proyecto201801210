@@ -262,7 +262,7 @@ def p_operacionarreglos(p):
     'operacion : CORIZQ  valores CORDER'
     nodo = NodoH(getIndex(),"operacion",[])
     nodo.agregar(NodoH(getIndex(),"[",None))
-    for val in p[4].nodo:
+    for val in p[2].nodo:
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(),"]",None))
     p[0] = Nodo(OperacionArreglo(p[2],p.lineno(1), buscar_columna(p.slice[1])),nodo)
@@ -417,7 +417,7 @@ def p_asignacion(p):
     nodo.agregar(NodoH(getIndex(),"::",None))
     nodo.agregar(NodoH(getIndex(),str(p[5]),None))
     nodo.agregar(NodoH(getIndex(),";",None))
-    p[0] = Nodo(Declaracion(p[1],p[3],p[5],p.lineno(6),buscar_columna(p.slice[1])),nodo)
+    p[0] = Nodo(Declaracion(None,p[1],p[3],p[5],p.lineno(6),buscar_columna(p.slice[1])),nodo)
 
 def p_asignacion2(p):
     'asignacion : ID IGUAL operacion PUNTOYCOMA'
@@ -426,7 +426,7 @@ def p_asignacion2(p):
     nodo.agregar(NodoH(getIndex(),"=",None))
     nodo.agregar(p[3].nodo)
     nodo.agregar(NodoH(getIndex(),";",None))
-    p[0] = Nodo(Declaracion(p[1],p[3],None,p.lineno(4),buscar_columna(p.slice[1])),nodo)
+    p[0] = Nodo(Declaracion(None,p[1],p[3],None,p.lineno(4),buscar_columna(p.slice[1])),nodo)
 
 
 def p_asignacion3(p):
@@ -435,9 +435,9 @@ def p_asignacion3(p):
     nodo.agregar(NodoH(getIndex(),"GLOBAL",None))
     nodo.agregar(NodoH(getIndex(),str(p[2]),None))
     nodo.agregar(NodoH(getIndex(),"=",None))
-    nodo.agregar(p[3].nodo)
+    nodo.agregar(p[4].nodo)
     nodo.agregar(NodoH(getIndex(),";",None))
-    p[0] = Declaracion(p[2],p[4],None,p.lineno(2),buscar_columna(p.slice[1]))
+    p[0] =  Nodo(Declaracion(p[1],p[2],p[4],None,p.lineno(2),buscar_columna(p.slice[1])),nodo)
 
 def p_asignacion4(p):
     'asignacion : GLOBAL ID IGUAL operacion DOBLEPUNTO tipo PUNTOYCOMA'
@@ -445,11 +445,11 @@ def p_asignacion4(p):
     nodo.agregar(NodoH(getIndex(),"GLOBAL",None))
     nodo.agregar(NodoH(getIndex(),str(p[2]),None))
     nodo.agregar(NodoH(getIndex(),"=",None))
-    nonodo.agregar(NodoH(getIndex(),str(p[3]),None))
+    nodo.agregar(p[4].nodo)
     nodo.agregar(NodoH(getIndex(),"::",None))
-    nodo.agregar(NodoH(getIndex(),str(p[5]),None))
+    nodo.agregar(NodoH(getIndex(),str(p[6]),None))
     nodo.agregar(NodoH(getIndex(),";",None))
-    p[0] = Nodo(Declaracion(p[2],p[4],p[6],p.lineno(2),buscar_columna(p.slice[1])),nodo)
+    p[0] = Nodo(Declaracion(p[1],p[2],p[4],p[6],p.lineno(2),buscar_columna(p.slice[1])),nodo)
 #funciones
 
 def p_funciones(p):

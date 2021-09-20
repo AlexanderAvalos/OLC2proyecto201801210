@@ -7,13 +7,30 @@ class Instruccion:
     'Clase definida para usar como interfaz'
 #isntrucciones basicas
 class Declaracion(Instruccion):
-    def __init__(self,id, valor,tipo, linea,columna):
+    def __init__(self,ambiente,id, valor,tipo, linea,columna):
+        self.ambiente = ambiente
         self.id = id
         self.valor = valor 
         self.columna = columna
-        self.tipo = tipo
+        self.tipo = self.verificarTipo(tipo)
         self.linea = linea
         super().__init__()
+
+    def verificarTipo(self,tipo):
+        tipo = str(tipo).lower()
+        if len(tipo) > 0:
+            if  tipo == 'int64':
+                return Tipo.ENTERO 
+            elif tipo == 'float64': 
+                return Tipo.DECIMAL
+            elif tipo == 'string': 
+                 return Tipo.STRING
+            elif tipo == 'bool':
+                return Tipo.BOOL
+            elif tipo == 'char' :
+                return Tipo.CHAR
+            elif tipo == None :
+                return Tipo.NULO
 
 class OperacionLlamada(Instruccion):
     def __init__(self,id,parametros):

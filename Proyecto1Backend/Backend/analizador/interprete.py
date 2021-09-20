@@ -253,20 +253,17 @@ class interprete:
             self.lst_errores.append(nuevo)
     
     def procesar_typeof(self,operacion,ts):
-            op1 = self.procesar_valor(operacion.valor,ts)    
-            tipo = Tipo.NULO        
-            if  isinstance(op1, int):
+            op1 = self.procesar_operacion(operacion.valor,ts)  
+            if op1 == False:
+                tipo = Tipo.BOOL
+            elif op1 == True :
+                tipo = Tipo.BOOL  
+            elif isinstance(op1, int):
                 tipo = Tipo.ENTERO 
             elif isinstance(op1, float): 
                 tipo = Tipo.DECIMAL
             elif isinstance(op1, ArbolCaracter): 
                  tipo = Tipo.STRING
-            elif isinstance(operacion.valor,OperacionCaracter):
-                tipo = Tipo.CHAR
-            elif op1 == False:
-                tipo = Tipo.BOOL
-            elif op1 == True :
-                tipo = Tipo.BOOL
             elif op1 == None :
                 tipo = Tipo.NULO
             else: 
@@ -423,26 +420,99 @@ class interprete:
 #declaracion 
     def procesar_Declaracion(self, instr, ts):
         op1 =  self.procesar_operacion(instr.valor,ts)
-        if isinstance(op1, ArbolCaracter):
-            if ts.verificar(instr.id, ts) == False:
-                simbolo = TS.Simbolo(instr.id,op1.getText().replace("\"", "") , Tipo.STRING, "Global",instr.linea, instr.columna)
-                ts.agregar(simbolo)
-            elif instr.valor != None:
-                simbolo = TS.Simbolo(instr.id, op1.getText().replace("\"", ""), Tipo.STRING, "Global",instr.linea, instr.columna)
-                ts.actualizar(simbolo)
+        if instr.ambiente == ['global']:
+            if isinstance(op1, ArbolCaracter):
+                if ts.verificar(instr.id, ts) == False:
+                    simbolo = TS.Simbolo(instr.id,op1.getText().replace("\"", "") , Tipo.STRING,  instr.ambiente,instr.linea, instr.columna)
+                    ts.agregar(simbolo)
+                elif instr.valor != None:
+                    simbolo = TS.Simbolo(instr.id, op1.getText().replace("\"", ""), Tipo.STRING,  instr.ambiente,instr.linea, instr.columna)
+                    ts.actualizar(simbolo)
+                else: 
+                    nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id),instr.linea,instr.columna)
+                    self.lst_errores.append(nuevo)
             else: 
-                nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id),instr.linea,instr.columna)
-                self.lst_errores.append(nuevo)
+                if ts.verificar(instr.id, ts) == False:
+                    simbolo = TS.Simbolo(instr.id,op1 , instr.tipo,  instr.ambiente, instr.linea, instr.columna)
+                    ts.agregar(simbolo)
+                elif instr.valor != None:
+                    simbolo = TS.Simbolo(instr.id, op1, instr.tipo, instr.ambiente,instr.linea, instr.columna)
+                    ts.actualizar(simbolo)
+                else: 
+                    nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id), instr.linea,instr.columna)
+                    self.lst_errores.append(nuevo)
+        elif instr.ambiente == ['local']:
+            print('error')
         else: 
-            if ts.verificar(instr.id, ts) == False:
-                simbolo = TS.Simbolo(instr.id,op1 , instr.tipo, "Global", instr.linea, instr.columna)
-                ts.agregar(simbolo)
-            elif instr.valor != None:
-                simbolo = TS.Simbolo(instr.id, op1, instr.tipo,  "Global",instr.linea, instr.columna)
-                ts.actualizar(simbolo)
+            if isinstance(op1, ArbolCaracter):
+                if ts.verificar(instr.id, ts) == False:
+                    simbolo = TS.Simbolo(instr.id,op1.getText().replace("\"", "") , Tipo.STRING,  'Global',instr.linea, instr.columna)
+                    ts.agregar(simbolo)
+                elif instr.valor != None:
+                    simbolo = TS.Simbolo(instr.id, op1.getText().replace("\"", ""), Tipo.STRING,  'Global', instr.linea, instr.columna)
+                    ts.actualizar(simbolo)
+                else: 
+                    nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id),instr.linea,instr.columna)
+                    self.lst_errores.append(nuevo)
             else: 
-                nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id), instr.linea,instr.columna)
-                self.lst_errores.append(nuevo)
+               
+                if ts.verificar(instr.id, ts) == False:
+                    simbolo = TS.Simbolo(instr.id,op1 , instr.tipo, 'Global', instr.linea, instr.columna)
+                    ts.agregar(simbolo)
+                elif instr.valor != None:
+                    simbolo = TS.Simbolo(instr.id, op1, instr.tipo, 'Global',instr.linea, instr.columna)
+                    ts.actualizar(simbolo)
+                else: 
+                    nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id), instr.linea,instr.columna)
+                    self.lst_errores.append(nuevo)
+
+    def procesar_DeclaracionesAmbito(self,ambito,instr,ts):
+        op1 =  self.procesar_operacion(instr.valor,ts)
+        if instr.ambiente == ['global']:
+            self.procesar_Declaracion(instr,ts)
+        elif instr.ambiente == ['local']:
+            if isinstance(op1, ArbolCaracter):
+                if ts.verificar(instr.id, ts) == False:
+                    simbolo = TS.Simbolo(instr.id,op1.getText().replace("\"", "") , Tipo.STRING,  ambito,instr.linea, instr.columna)
+                    ts.agregar(simbolo)
+                elif instr.valor != None:
+                    simbolo = TS.Simbolo(instr.id, op1.getText().replace("\"", ""), Tipo.STRING,  ambito,instr.linea, instr.columna)
+                    ts.actualizar(simbolo)
+                else: 
+                    nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id),instr.linea,instr.columna)
+                    self.lst_errores.append(nuevo)
+            else: 
+                if ts.verificar(instr.id, ts) == False:
+                    simbolo = TS.Simbolo(instr.id,op1 , instr.tipo,  ambito, instr.linea, instr.columna)
+                    ts.agregar(simbolo)
+                elif instr.valor != None:
+                    simbolo = TS.Simbolo(instr.id, op1, instr.tipo, ambito,instr.linea, instr.columna)
+                    ts.actualizar(simbolo)
+                else: 
+                    nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id), instr.linea,instr.columna)
+                    self.lst_errores.append(nuevo)
+        else:
+            if isinstance(op1, ArbolCaracter):
+                if ts.verificar(instr.id, ts) == False:
+                    simbolo = TS.Simbolo(instr.id,op1.getText().replace("\"", "") , Tipo.STRING,  ambito,instr.linea, instr.columna)
+                    ts.agregar(simbolo)
+                elif instr.valor != None:
+                    simbolo = TS.Simbolo(instr.id, op1.getText().replace("\"", ""), Tipo.STRING,  ambito,instr.linea, instr.columna)
+                    ts.actualizar(simbolo)
+                else: 
+                    nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id),instr.linea,instr.columna)
+                    self.lst_errores.append(nuevo)
+            else: 
+                if ts.verificar(instr.id, ts) == False:
+                    simbolo = TS.Simbolo(instr.id,op1 , instr.tipo,  ambito, instr.linea, instr.columna)
+                    ts.agregar(simbolo)
+                elif instr.valor != None:
+                    simbolo = TS.Simbolo(instr.id, op1, instr.tipo, ambito,instr.linea, instr.columna)
+                    ts.actualizar(simbolo)
+                else: 
+                    nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id), instr.linea,instr.columna)
+                    self.lst_errores.append(nuevo)
+
 
 # impresion valores sencillos
     def procesar_impresion(self,instr, ts):
@@ -593,9 +663,12 @@ class interprete:
             for func in self.listaFunciones:
                 if func.idfuncion == inst.idFuncion:
                     verificar = True
-                    print('ya existe funcion con ese nombre')
+                    nuevo = err.TokenError("Semantico","Condicional \"{0}\" desconocido".format(inst.idFuncion), inst.linea,0)
+                    self.lst_errores.append(nuevo)
             if verificar == False:
                 self.listaFunciones.append(Funcionesaux(inst.idFuncion, inst.parametros, inst.sentencias,TIPO_ESTRUCTURAS.FUNCION))
+                simbolo = TS.Simbolo(inst.idFuncion,None , TIPO_ESTRUCTURAS.FUNCION,  'Global', inst.linea, 0)
+                ts.agregar(simbolo)
         elif len(self.listaFunciones) == 0:
             self.listaFunciones.append(Funcionesaux(inst.idFuncion, inst.parametros, inst.sentencias,TIPO_ESTRUCTURAS.FUNCION))
 #llamada
@@ -617,9 +690,11 @@ class interprete:
                             else: 
                                 nuevo = err.TokenError("Semantico","Parametros no coinciden", 0,0)
                                 self.lst_errores.append(nuevo)
+                        if isinstance(func.instrucciones, Declaracion):
+                            self.procesar_DeclaracionesAmbito(func.idfuncion,func.instrucciones,tablalocal)
                         val = self.procesar_instrucciones(func.instrucciones, tablalocal)
                         if val != None:
-                            self.local.append(tablalocal)
+                            
                             return val
                     else:
                         struct = {}
@@ -672,8 +747,8 @@ class interprete:
                 objeto[val.id] = tipo
             else:
                 objeto[val.id] = ''
-            simboloaux = TS.Simbolo(val.id+"a",'', val.tipo, clave,inst.linea, inst.columna)
-            ts.agregar(simboloaux)
+            simbolo = TS.Simbolo(" "+val.id,None, val.tipo, clave,inst.linea, inst.columna)
+            ts.agregar(simbolo)
         self.structs.agregar(clave,objeto)
         simbolo = TS.Simbolo(clave,objeto, TIPO_ESTRUCTURAS.STRUCT, "Global",inst.linea, inst.columna)
         ts.agregar(simbolo)
@@ -876,26 +951,7 @@ class interprete:
                     file = file +("<TD>")
                     file = file +(str(self.ts.obtener(val2,self.ts).column))
                     file = file +("</TD>")
-                    file = file +("</TR>\n")
-            if len(self.local) > 0:
-                for val2 in self.local[len(self.local)-1].simbolos:
-                    file = file +("<TR>")
-                    file = file +("<TD>")
-                    file = file +(val2)
-                    file = file +("</TD>")
-                    file = file +("<TD>")
-                    file = file +(str(self.ts.obtener(val2,self.local[len(self.local)-1]).tipo))
-                    file = file +("</TD>")
-                    file = file +("<TD>")
-                    file = file +(str(self.ts.obtener(val2,self.local[len(self.local)-1]).ambito))
-                    file = file +("</TD>")
-                    file = file +("<TD>")
-                    file = file +(str(self.ts.obtener(val2,self.local[len(self.local)-1]).line))
-                    file = file +("</TD>")
-                    file = file +("<TD>")
-                    file = file +(str(self.ts.obtener(val2,self.local[len(self.local)-1]).column))
-                    file = file +("</TD>")
-                    file = file +("</TR>\n")        
+                    file = file +("</TR>\n")       
             file = file +("</TABLE>")
             file = file +("\n>,];\n")
             file = file +("}")

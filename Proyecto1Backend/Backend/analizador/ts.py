@@ -37,20 +37,18 @@ class Simbolo:
         if tipo != None:
             return tipo
         else:
-            if  isinstance(valor, int):
+            if valor == False:
+                return Tipo.BOOL
+            elif valor == True :
+                return Tipo.BOOL
+            elif  isinstance(valor, int):
                 return Tipo.ENTERO 
             elif isinstance(valor, float): 
                 return Tipo.DECIMAL
             elif isinstance(valor, str): 
-                 return Tipo.STRING
-            elif valor == False:
-                return Tipo.BOOL
-            elif valor == True :
-                return Tipo.BOOL
+                 return Tipo.STRING 
             elif valor == None :
                 return Tipo.NULO
-            else: 
-                return TIPO_ESTRUCTURAS.CONSTRUCTOR
 
 
 class TablaSimbolos:
