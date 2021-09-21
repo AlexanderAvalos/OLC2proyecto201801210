@@ -32,50 +32,56 @@ class Declaracion(Instruccion):
             elif tipo == None :
                 return Tipo.NULO
 
-class OperacionLlamada(Instruccion):
-    def __init__(self,id,parametros):
-        self.id = id 
-        self.parametros = parametros
+class Declaracionaux(Instruccion):
+    def __init__(self,tipo,id,linea,columna):
+        self.tipo = tipo
+        self.id = id
+        self.linea = linea
+        self.columna = columna
         super().__init__()
 
-class PrintComp(Instruccion):
-    def __init__(self,tipo,cadena,argumentos,line):
-        self.tipo = tipo
-        self.cadena = cadena 
-        self.argumentos = argumentos
-        self.line = line
+
+class OperacionLlamada(Instruccion):
+    def __init__(self,id,parametros,linea,columna):
+        self.id = id 
+        self.parametros = parametros
+        self.linea = linea 
+        self.columna = columna
         super().__init__()
 
 class PrintCadena(Instruccion):
-    def __init__(self,tipo,cadena,line):
+    def __init__(self,tipo,line,columna):
         self.tipo = tipo
-        self.cadena = cadena 
         self.line = line
+        self.columna = columna
         super().__init__()
 
 class Printval(Instruccion):
-    def __init__(self,tipo,val,line):
+    def __init__(self,tipo,val,line,columna):
         self.tipo = tipo
         self.val = val 
         self.line = line
+        self.columna = columna
         super().__init__()        
 
 #llamada
 
 class llamada(Instruccion): 
-    def __init__(self, idfuncion, parametros, linea):
+    def __init__(self, idfuncion, parametros, linea,columna):
         self.idfuncion = idfuncion
         self.parametros = parametros
         self.linea = linea 
+        self.columna = columna
         super().__init__()
 #funciones
 
 class Funcion(Instruccion):
-    def __init__(self,idFuncion,parametros, sentencias,linea):
+    def __init__(self,idFuncion,parametros, sentencias,linea,columna):
         self.idFuncion = idFuncion
         self.parametros = parametros
         self.sentencias = sentencias 
         self.linea = linea 
+        self.columna = columna
         super().__init__()
 
 class Parametros(Instruccion):
@@ -88,52 +94,59 @@ class Parametros(Instruccion):
 
 #sentencias 
 class SentenciaReturn(Instruccion):
-    def __init__(self,operacion,linea):
+    def __init__(self,operacion,linea,columna):
         self.operacion = operacion
         self.linea = linea 
+        self.columna = columna
         super().__init__()
 
 class SentenciaBreak(Instruccion):
-    def __init__(self,line):
+    def __init__(self,line,columna):
         self.line = line
+        self.columna=columna
         super().__init__()
 
 class SentenciaContinue(Instruccion):
-    def __init__(self,line):
+    def __init__(self,line,columna):
         self.line = line
+        self.columna=columna
         super().__init__()
 
 #if
 class If(Instruccion):
-    def __init__(self, s_if, s_elif, s_else, linea):
+    def __init__(self, s_if, s_elif, s_else, linea,columna):
         self.s_if = s_if
         self.s_elif = s_elif
         self.s_else = s_else
         self.linea = linea
+        self.columna = columna
         super().__init__()
 
 class SentenciaIf(Instruccion):
-    def __init__(self,condicion, sentencias, linea):
+    def __init__(self,condicion, sentencias, linea,columna):
         self.condicion = condicion
         self.sentencias = sentencias
         self.linea = linea
+        self.columna = columna
         super().__init__()
 
 #while
 class While(Instruccion):
-    def __init__(self, condicion, sentencias, linea):
+    def __init__(self, condicion, sentencias, linea, columna):
         self.condicion = condicion
         self.sentencias = sentencias
         self.linea = linea
+        self.columna = columna
         super().__init__()
 
 #for
 class For(Instruccion):
-    def __init__(self,id, condicional, sentencias, linea):
+    def __init__(self,id, condicional, sentencias, linea,columna):
         self.id = id
         self.condicional = condicional
         self.sentencias = sentencias
         self.linea = linea 
+        self.columna = columna
         super().__init__()
 
 class condicionalSimple(Instruccion):
@@ -352,10 +365,11 @@ class OperacionLenght(Instruccion):
         super().__init__()
 
 class OperacionParse(Instruccion):
-    def __init__(self, tipo, valor, linea):
+    def __init__(self, tipo, valor, linea,columna):
         self.tipo = self.verficartipo(tipo)
         self.valor = valor
         self.linea = linea
+        self.columna = columna
         super().__init__()
 
     def verficartipo(self,tipo):
@@ -368,42 +382,49 @@ class OperacionParse(Instruccion):
             return Tipo.INVALIDO
 
 class OperacionTrunc(Instruccion):
-    def __init__(self, valor, linea):
+    def __init__(self, valor, linea,columna):
         self.valor = valor
         self.linea = linea
+        self.columna = columna
         super().__init__()
 
 
 class OperacionFloat(Instruccion):
-    def __init__(self,  valor,linea):
+    def __init__(self,  valor,linea,columna):
         self.valor = valor
         self.linea = linea
+        self.columna = columna
         super().__init__()
 
 class OperacionString(Instruccion):
-    def __init__(self,valor,linea):
+    def __init__(self,valor,linea,columna):
         self.valor = valor
         self.linea = linea
+        self.columna = columna
         super().__init__()
 
 class OperacionTypeof(Instruccion):
-    def __init__(self,valor,linea):
+    def __init__(self,valor,linea,columna):
         self.valor = valor
         self.linea = linea
+        self.columna = columna
         super().__init__()
 
 #arreglos
 class OperacionPush(Instruccion):
-    def __init__(self,arreglo,valor,linea):
+    def __init__(self,arreglo,listaposiciones,valor,linea,columna):
         self.arreglo = arreglo
+        self.lista = listaposiciones
         self.valor = valor
         self.linea = linea
+        self.columna = columna
         super().__init__()
 
 class OperacionPop(Instruccion):
-    def __init__(self,arreglo,linea):
+    def __init__(self,arreglo,linea,columna):
         self.arreglo = arreglo
         self.linea = linea
+        self.columna = columna
         super().__init__()
 
 #structs

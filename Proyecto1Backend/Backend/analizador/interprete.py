@@ -466,6 +466,30 @@ class interprete:
                     nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id), instr.linea,instr.columna)
                     self.lst_errores.append(nuevo)
 
+    def procesar_declaracionaux(self,instr,ts):
+        if instr.tipo == ['global']:
+                if ts.verificar(instr.id, ts) == False:
+                    simbolo = TS.Simbolo(instr.id,None , Tipo.STRING,  instr.tipo,instr.linea, instr.columna)
+                    ts.agregar(simbolo)
+                elif instr.valor != None:
+                    simbolo = TS.Simbolo(instr.id, None, Tipo.STRING,  instr.tipo,instr.linea, instr.columna)
+                    ts.actualizar(simbolo)
+                else: 
+                    nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id),instr.linea,instr.columna)
+                    self.lst_errores.append(nuevo)
+        elif instr.tipo == ['local']:
+                if ts.verificar(instr.id, ts) == False:
+                    simbolo = TS.Simbolo(instr.id,None , Tipo.STRING,  instr.tipo,instr.linea, instr.columna)
+                    ts.agregar(simbolo)
+                elif instr.valor != None:
+                    simbolo = TS.Simbolo(instr.id, None, Tipo.STRING,  instr.tipo,instr.linea, instr.columna)
+                    ts.actualizar(simbolo)
+                else: 
+                    nuevo = err.TokenError("Semantico","Valor \"{0}\" desconocido".format(instr.id),instr.linea,instr.columna)
+                    self.lst_errores.append(nuevo)
+       
+            
+
     def procesar_DeclaracionesAmbito(self,ambito,instr,ts):
         op1 =  self.procesar_operacion(instr.valor,ts)
         if instr.ambiente == ['global']:
@@ -538,6 +562,12 @@ class interprete:
                     self.salida = self.salida +  str(self.procesar_operacion(val,ts)) 
             self.salida = self.salida + '\n'
     
+    def procesar_impresionvacia(self,instr,ts):
+        if instr.tipo == ['print']:
+           self.salida = self.salida
+        else:   
+            self.salida = self.salida + '\n'
+
     def procesar_variable(self,val,ts):
         if ts.existe(val.id) == True:
             return(self.procesar_valor(val,ts))
@@ -663,14 +693,16 @@ class interprete:
             for func in self.listaFunciones:
                 if func.idfuncion == inst.idFuncion:
                     verificar = True
-                    nuevo = err.TokenError("Semantico","Condicional \"{0}\" desconocido".format(inst.idFuncion), inst.linea,0)
+                    nuevo = err.TokenError("Semantico","Condicional \"{0}\" desconocido".format(inst.idFuncion), inst.linea,inst.columna)
                     self.lst_errores.append(nuevo)
             if verificar == False:
                 self.listaFunciones.append(Funcionesaux(inst.idFuncion, inst.parametros, inst.sentencias,TIPO_ESTRUCTURAS.FUNCION))
-                simbolo = TS.Simbolo(inst.idFuncion,None , TIPO_ESTRUCTURAS.FUNCION,  'Global', inst.linea, 0)
+                simbolo = TS.Simbolo(inst.idFuncion,None , TIPO_ESTRUCTURAS.FUNCION,  'Global', inst.linea, inst.columna)
                 ts.agregar(simbolo)
         elif len(self.listaFunciones) == 0:
             self.listaFunciones.append(Funcionesaux(inst.idFuncion, inst.parametros, inst.sentencias,TIPO_ESTRUCTURAS.FUNCION))
+            simbolo = TS.Simbolo(inst.idFuncion,None , TIPO_ESTRUCTURAS.FUNCION,  'Global', inst.linea, inst.columna)
+            ts.agregar(simbolo)
 #llamada
     def procesar_llamada(self, inst, ts):
         #por valor
@@ -855,15 +887,32 @@ class interprete:
             
 
     def procesar_arreglopush(self, expresion,ts):
-            if ts.verificar(expresion.arreglo,ts):
-                arr = ts.get(expresion.arreglo,ts)
-                arr = arre.bloqueArreglo(arr)
-                arr.agregar(self.procesar_operacion(expresion.valor,ts))
-                simbolo = TS.Simbolo(expresion.arreglo, arr.arreglo, TIPO_ESTRUCTURAS.ARREGLO,"Global", expresion.linea, 0)
-                ts.actualizar(simbolo)
+            if expresion.lista == None:
+                if ts.verificar(expresion.arreglo,ts):
+                    arr = ts.get(expresion.arreglo,ts)
+                    arr = arre.bloqueArreglo(arr)
+                    arr.agregar(self.procesar_operacion(expresion.valor,ts))
+                    simbolo = TS.Simbolo(expresion.arreglo, arr.arreglo, TIPO_ESTRUCTURAS.ARREGLO,"Global", expresion.linea, 0)
+                    ts.actualizar(simbolo)
+                else:
+                    nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo), 0,0)
+                    self.lst_errores.append(nuevo)
             else:
-                nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo), 0,0)
-                self.lst_errores.append(nuevo)
+                if ts.verificar(expresion.arreglo,ts):
+                    arr = ts.get(expresion.arreglo,ts)
+                    arr = arre.bloqueArreglo(arr)
+                    posiciones = []
+                    for val in expresion.lista:
+                        posiciones.append(self.procesar_operacion(val.operacion,ts))
+                    if arr.existe(posiciones):
+                        aux = arr.obtener(posiciones)
+                        aux = arre.bloqueArreglo(aux)
+                        aux.agregar(self.procesar_operacion(expresion.valor,ts))
+                        simbolo = TS.Simbolo(expresion.arreglo, arr.arreglo, TIPO_ESTRUCTURAS.ARREGLO,"Global", expresion.linea, 0)
+                        ts.actualizar(simbolo)
+                else:
+                    nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo), 0,0)
+                    self.lst_errores.append(nuevo)
 
     def procesar_arreglopop(self,expresion,ts):
         if ts.verificar(expresion.arreglo,ts):
@@ -916,8 +965,12 @@ class interprete:
                 self.procesar_asignacionArreglo(instr,ts)
             elif isinstance(instr,OperacionPush):
                 self.procesar_arreglopush(instr,ts)
+            elif isinstance(instr, PrintCadena):
+                self.procesar_impresionvacia(instr,ts)
+            elif isinstance(instr,Declaracionaux):
+                self.procesar_declaracionaux(instr,ts)
             else:
-                nuevo = err.TokenError("Semantico","Instruccion  \"{0}\" desconocida".format(instr), 0,0)
+                nuevo = err.TokenError("Semantico","Instruccion  desconocida", 0,0)
                 self.lst_errores.append(nuevo)
         self.ts = ts
         

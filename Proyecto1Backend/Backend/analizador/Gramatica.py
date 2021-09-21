@@ -92,7 +92,6 @@ tokens = [
     'ID',
     'CARACTER',
     'DOSPUNTOS',
-    'INTERROGACION'
 ] + list(reservadas.values())
 
 
@@ -314,23 +313,21 @@ def p_asignacionstruct(p):
 
 def p_llamada(p):
     'callfuncion : ID PARIZQ PARDER PUNTOYCOMA'
-    p[0] = llamada(p[1], None, p.lineno(1))
+    p[0] = llamada(p[1], None, p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_llamada2(p):
     'callfuncion : ID PARIZQ valores PARDER PUNTOYCOMA'
-    p[0] = llamada(p[1], p[3], p.lineno(1))
-
-
+    p[0] = llamada(p[1], p[3], p.lineno(1),buscar_columna(p.slice[1]))
 
 #funcion
 
 def p_funciones(p):
     'funcion : FUNCTION ID PARIZQ parametros PARDER instrucciones END PUNTOYCOMA'
-    p[0] = Funcion(p[2],p[4],p[6],p.lineno(1))
+    p[0] = Funcion(p[2],p[4],p[6],p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_funciones2(p):
     'funcion :  FUNCTION ID PARIZQ PARDER instrucciones END PUNTOYCOMA'
-    p[0] = Funcion(p[2], None,p[5], p.lineno(1))
+    p[0] = Funcion(p[2], None,p[5], p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_parametros(p):
     'parametros : parametros COMA parametro'
@@ -351,6 +348,12 @@ def p_parametrossimple2(p):
 
 
 #asignacion simple
+def p_declaglobal(p):
+    'asignacion : GLOBAL ID PUNTOYCOMA'
+    p[0] = Declaracionaux(p[1],p[2],p.lineno(2),buscar_columna(p.slice[2]))
+def p_declalocal(p):
+    'asignacion : LOCALR ID PUNTOYCOMA'
+    p[0] = Declaracionaux(p[1],p[2],p.lineno(2),buscar_columna(p.slice[2]))
 def p_asignacion(p):
     'asignacion : ID IGUAL operacion DOBLEPUNTO tipo PUNTOYCOMA'
     p[0] = Declaracion(None,p[1],p[3],p[5],p.lineno(1),buscar_columna(p.slice[1]))
@@ -390,27 +393,27 @@ def p_sentencia(p):
 
 def p_break(p):
     'break : BREAK PUNTOYCOMA'
-    p[0] = SentenciaBreak(p.lineno(1))
+    p[0] = SentenciaBreak(p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_continue(p):
     'continue : CONTINUE PUNTOYCOMA'
-    p[0] = SentenciaContinue(p.lineno(1))
+    p[0] = SentenciaContinue(p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_return(p):
     'return : RETURN operacion PUNTOYCOMA'
-    p[0] = SentenciaReturn(p[2],p.lineno(1))
+    p[0] = SentenciaReturn(p[2],p.lineno(1),buscar_columna(p.slice[1]))
 
 
 #while 
 def p_while(p):
     'while : WHILE operacion instrucciones END PUNTOYCOMA'
-    p[0] = While(p[2], p[3], p.lineno(1))
+    p[0] = While(p[2], p[3], p.lineno(1),buscar_columna(p.slice[1]))
 
 
 #for
 def p_for(p):
     'for : FOR ID IN condicional instrucciones END PUNTOYCOMA'
-    p[0] = For(p[2], p[4], p[5], p.lineno(1))
+    p[0] = For(p[2], p[4], p[5], p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_condicional1(p):
     'condicional : operacion'
@@ -424,20 +427,20 @@ def p_condicional2(p):
 #sentencia if
 def p_if(p):
     'if : IF operacion instrucciones END PUNTOYCOMA'
-    s_if = SentenciaIf(p[2],p[3],p.lineno(1))
-    p[0] = If(s_if, None, None, p.lineno(1))
+    s_if = SentenciaIf(p[2],p[3],p.lineno(1),buscar_columna(p.slice[1]))
+    p[0] = If(s_if, None, None, p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_ifelse(p):
     'if : IF operacion instrucciones ELSE instrucciones END PUNTOYCOMA'
-    s_if = SentenciaIf(p[2],p[3],p.lineno(1))
-    s_else = SentenciaIf(None, p[5],p.lineno(4))
-    p[0] = If(s_if, None, s_else, p.lineno(1))
+    s_if = SentenciaIf(p[2],p[3],p.lineno(1),buscar_columna(p.slice[1]))
+    s_else = SentenciaIf(None, p[5],p.lineno(4),buscar_columna(p.slice[4]))
+    p[0] = If(s_if, None, s_else, p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_elseif2(p): 
     'if : IF operacion instrucciones elseifaux END PUNTOYCOMA'
-    s_if = SentenciaIf(p[2],p[3],p.lineno(1))
+    s_if = SentenciaIf(p[2],p[3],p.lineno(1),buscar_columna(p.slice[1]))
     s_elif = p[4]
-    p[0] = If(s_if, s_elif, None, p.lineno(1))
+    p[0] = If(s_if, s_elif, None, p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_elseif1(p):
     'elseifaux : elseifaux aux'
@@ -450,14 +453,14 @@ def p_elseif3(p):
 
 def p_elif2(p):
     'aux : ELSEIF operacion instrucciones'
-    p[0] = SentenciaIf(p[2],p[3],p.lineno(1))
+    p[0] = SentenciaIf(p[2],p[3],p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_ifelseifelse(p):
     'if : IF operacion instrucciones elseifaux ELSE instrucciones END PUNTOYCOMA'
-    s_if = SentenciaIf(p[2],p[3],p.lineno(1))
+    s_if = SentenciaIf(p[2],p[3],p.lineno(1),buscar_columna(p.slice[1]))
     s_elif = p[4]
-    s_else = SentenciaIf(None, p[6], p.lineno(5))
-    p[0] = If(s_if,s_elif,s_else, p.lineno(1))
+    s_else = SentenciaIf(None, p[6], p.lineno(5),buscar_columna(p.slice[5]))
+    p[0] = If(s_if,s_elif,s_else, p.lineno(1),buscar_columna(p.slice[1]))
 
 
 #nativo
@@ -472,10 +475,14 @@ def p_nativo(p):
 def p_impresionSimple(p):
     '''impresion : PRINT PARIZQ valores PARDER PUNTOYCOMA
                  | PRINTLN PARIZQ valores PARDER PUNTOYCOMA
-    '''
-    
-    p[0] = Printval([p[1]], p[3], p.lineno(3))
+    '''    
+    p[0] = Printval([p[1]], p[3], p.lineno(3),buscar_columna(p.slice[1]))
 
+def p_impresionVacia(p):
+    '''impresion : PRINT PARIZQ  PARDER PUNTOYCOMA
+                 | PRINTLN PARIZQ  PARDER PUNTOYCOMA
+    '''
+    p[0] = PrintCadena([p[1]], p.lineno(3),buscar_columna(p.slice[1]))
 #operaciones simples 
 def p_operacionLogicas(p):
     '''operacion   : operacion AND              operacion
@@ -516,11 +523,11 @@ def p_operacionParentesis(p):
 
 def p_operacionLlamada3(p):
     'operacion : ID PARIZQ valores PARDER '
-    p[0] = llamada(p[1], p[3], p.lineno(1))
+    p[0] = llamada(p[1], p[3], p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_operacionLlamada4(p):
     'operacion : ID PARIZQ  PARDER '
-    p[0] = llamada(p[1], None, p.lineno(1))
+    p[0] = llamada(p[1], None, p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_operacionLocal(p):
     'operacion : local'
@@ -564,31 +571,36 @@ def p_operacionLocalLenght(p):
 
 def p_operacionLocalparse(p):
     'local     : PARSE PARIZQ tipo COMA CADENA PARDER '
-    p[0] = OperacionParse(p[3],p[5],p.lineno(1))
+    p[0] = OperacionParse(p[3],p[5],p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_operacionLocaltrunc(p):
     'local     : TRUNC PARIZQ  DECIMAL PARDER  '
-    p[0] = OperacionTrunc(p[3],p.lineno(1))
+    p[0] = OperacionTrunc(p[3],p.lineno(1),buscar_columna(p.slice[1]))
     
 def p_operacionLocalfloat(p):
     'local     : FLOAT PARIZQ ENTERO PARDER  '
-    p[0] = OperacionFloat(p[3],p.lineno(1))
+    p[0] = OperacionFloat(p[3],p.lineno(1),buscar_columna(p.slice[1]))
     
 def p_operacionLocalstring(p):
     'local     : STRING PARIZQ operacion PARDER  '
-    p[0] = OperacionString(p[3],p.lineno(1))
+    p[0] = OperacionString(p[3],p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_operacionLocaltypeof(p):
     'local     : TYPEOF PARIZQ operacion PARDER  '
-    p[0] = OperacionTypeof(p[3],p.lineno(1))
+    p[0] = OperacionTypeof(p[3],p.lineno(1),buscar_columna(p.slice[1]))
 
 def p_operacionpush(p):
     'sentencia     : PUSH NOT PARIZQ ID COMA operacion PARDER PUNTOYCOMA '
-    p[0] = OperacionPush(p[4],p[6],p.lineno(1))
+    p[0] = OperacionPush(p[4],None,p[6],p.lineno(1),buscar_columna(p.slice[1]))
+
+def p_operacionpush2(p):
+    'sentencia     : PUSH NOT PARIZQ ID listaposiciones COMA operacion PARDER PUNTOYCOMA '
+    p[0] = OperacionPush(p[4],p[5],p[7],p.lineno(1),buscar_columna(p.slice[1]))
+
 
 def p_operacionpop(p):
     'local     : POP NOT PARIZQ ID PARDER  '
-    p[0] = OperacionPop(p[4],p.lineno(1))
+    p[0] = OperacionPop(p[4],p.lineno(1),buscar_columna(p.slice[1]))
 
 
 def p_operacionValor(p):

@@ -59,7 +59,8 @@ reservadas = {
     'pop':'POP',
     'float':'FLOAT',
     'typeof':'TYPEOF',
-    'global':'GLOBAL'
+    'global':'GLOBAL',
+    'local': 'LOCALR' 
 }
 
 
@@ -428,6 +429,27 @@ def p_asignacion2(p):
     nodo.agregar(NodoH(getIndex(),";",None))
     p[0] = Nodo(Declaracion(None,p[1],p[3],None,p.lineno(4),buscar_columna(p.slice[1])),nodo)
 
+def p_asignacion5(p):
+    'asignacion : LOCALR ID IGUAL operacion PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"asignacion",[])
+    nodo.agregar(NodoH(getIndex(),"LOCALR",None))
+    nodo.agregar(NodoH(getIndex(),str(p[2]),None))
+    nodo.agregar(NodoH(getIndex(),"=",None))
+    nodo.agregar(p[4].nodo)
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] =  Nodo(Declaracion(p[1],p[2],p[4],None,p.lineno(2),buscar_columna(p.slice[1])),nodo)
+
+def p_asignacion6(p):
+    'asignacion : LOCALR ID IGUAL operacion DOBLEPUNTO tipo PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"asignacion",[])
+    nodo.agregar(NodoH(getIndex(),"LOCALR",None))
+    nodo.agregar(NodoH(getIndex(),str(p[2]),None))
+    nodo.agregar(NodoH(getIndex(),"=",None))
+    nodo.agregar(p[4].nodo)
+    nodo.agregar(NodoH(getIndex(),"::",None))
+    nodo.agregar(NodoH(getIndex(),str(p[6]),None))
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] = Nodo(Declaracion(p[1],p[2],p[4],p[6],p.lineno(2),buscar_columna(p.slice[1])),nodo)
 
 def p_asignacion3(p):
     'asignacion : GLOBAL ID IGUAL operacion PUNTOYCOMA'
@@ -465,7 +487,7 @@ def p_funciones(p):
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(),"end", None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(Funcion(p[2],p[4],p[6],p.lineno(1)),nodo)
+    p[0] = Nodo(Funcion(p[2],p[4],p[6],p.lineno(1),buscar_columna(p.slice[1])),nodo)
 
 def p_funciones2(p):
     'funcion :  FUNCTION ID PARIZQ PARDER instrucciones END PUNTOYCOMA'
@@ -478,7 +500,7 @@ def p_funciones2(p):
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(),"end", None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(Funcion(p[2], None,p[5], p.lineno(1)),nodo)
+    p[0] = Nodo(Funcion(p[2], None,p[5], p.lineno(1),buscar_columna(p.slice[1])),nodo)
 
 def p_parametros(p):
     'parametros : parametros COMA parametro'
@@ -517,7 +539,7 @@ def p_llamada(p):
     nodo.agregar(NodoH(getIndex(),"(",None))
     nodo.agregar(NodoH(getIndex(),")",None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(llamada(p[1], None, p.lineno(1)),nodo)
+    p[0] = Nodo(llamada(p[1], None, p.lineno(1),buscar_columna(p.slice[1])),nodo)
 
 def p_llamada2(p):
     'callfuncion : ID PARIZQ valores PARDER PUNTOYCOMA'
@@ -528,7 +550,7 @@ def p_llamada2(p):
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(),")",None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(llamada(p[1], p[3], p.lineno(1)),nodo)
+    p[0] = Nodo(llamada(p[1], p[3], p.lineno(1),buscar_columna(p.slice[1])),nodo)
 #nativas
 
 def p_nativo(p):
@@ -548,13 +570,13 @@ def p_impresionSimple(p):
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(), ")", None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(Printval([p[1]], p[3], p.lineno(3)), nodo)
+    p[0] = Nodo(Printval([p[1]], p[3], p.lineno(3),buscar_columna(p.slice[1])), nodo)
 #sentencias
 
 #sentencia if
 def p_if(p):
     'if : IF operacion instrucciones END PUNTOYCOMA'
-    s_if = SentenciaIf(p[2],p[3],p.lineno(1))
+    s_if = SentenciaIf(p[2],p[3],p.lineno(1),buscar_columna(p.slice[1]))
     nodo = NodoH(getIndex(),"sentencia",[])
     nodo.agregar(NodoH(getIndex(), "if", None))
     nodo.agregar(p[2].nodo)
@@ -562,12 +584,12 @@ def p_if(p):
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(),"end", None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(If(s_if, None, None, p.lineno(1)), nodo)
+    p[0] = Nodo(If(s_if, None, None, p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_ifelse(p):
     'if : IF operacion instrucciones ELSE instrucciones END PUNTOYCOMA'
-    s_if = SentenciaIf(p[2],p[3],p.lineno(1))
-    s_else = SentenciaIf(None, p[5],p.lineno(4))
+    s_if = SentenciaIf(p[2],p[3],p.lineno(1),buscar_columna(p.slice[1]))
+    s_else = SentenciaIf(None, p[5],p.lineno(4),buscar_columna(p.slice[4]))
     nodo = NodoH(getIndex(),"sentencia",[])
     nodo.agregar(NodoH(getIndex(), str(p[1]), None))
     nodo.agregar(p[2].nodo)
@@ -578,11 +600,11 @@ def p_ifelse(p):
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(),str(p[6]), None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(If(s_if, None, s_else, p.lineno(1)), nodo)
+    p[0] = Nodo(If(s_if, None, s_else, p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_elseif2(p): 
     'if : IF operacion instrucciones elseifaux END PUNTOYCOMA'
-    s_if = SentenciaIf(p[2],p[3],p.lineno(1))
+    s_if = SentenciaIf(p[2],p[3],p.lineno(1),buscar_columna(p.slice[1]))
     s_elif = p[4]
     nodo = NodoH(getIndex(),"sentencia",[])
     nodo.agregar(NodoH(getIndex(), str(p[1]), None))
@@ -593,7 +615,7 @@ def p_elseif2(p):
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(),str(p[5]), None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(If(s_if, s_elif, None, p.lineno(1)), nodo)
+    p[0] = Nodo(If(s_if, s_elif, None, p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_elseif1(p):
     'elseifaux : elseifaux aux'
@@ -616,13 +638,13 @@ def p_elif2(p):
     nodo.agregar(p[2].nodo)
     for val in p[3].nodo:
         nodo.agregar(val)
-    p[0] = Nodo(SentenciaIf(p[2],p[3],p.lineno(1)), nodo)
+    p[0] = Nodo(SentenciaIf(p[2],p[3],p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_ifelseifelse(p):
     'if : IF operacion instrucciones elseifaux ELSE instrucciones END PUNTOYCOMA'
-    s_if = SentenciaIf(p[2],p[3],p.lineno(1))
+    s_if = SentenciaIf(p[2],p[3],p.lineno(1),buscar_columna(p.slice[1]))
     s_elif = p[4]
-    s_else = SentenciaIf(None, p[6], p.lineno(5))
+    s_else = SentenciaIf(None, p[6], p.lineno(5),buscar_columna(p.slice[5]))
     nodo = NodoH(getIndex(),"sentencia",[])
     nodo.agregar(NodoH(getIndex(), str(p[1]), None))
     nodo.agregar(p[2].nodo)
@@ -635,7 +657,7 @@ def p_ifelseifelse(p):
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(),str(p[7]), None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(If(s_if, s_elif, s_else, p.lineno(1)), nodo)
+    p[0] = Nodo(If(s_if, s_elif, s_else, p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 
 #for 
@@ -649,7 +671,7 @@ def p_for(p):
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(),"end", None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(For(p[2], p[4], p[5], p.lineno(1)), nodo)
+    p[0] = Nodo(For(p[2], p[4], p[5], p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_condicional2(p):
     'condicional : operacion DOSPUNTOS operacion'
@@ -678,7 +700,7 @@ def p_while(p):
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(),"end", None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(While(p[2], p[3], p.lineno(1)), nodo)
+    p[0] = Nodo(While(p[2], p[3], p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 
 def p_break(p):
@@ -686,14 +708,14 @@ def p_break(p):
     nodo = NodoH(getIndex(),"sentencia",[])
     nodo.agregar(NodoH(getIndex(), "BREAK", None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(SentenciaBreak(p.lineno(1)), nodo)
+    p[0] = Nodo(SentenciaBreak(p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_continue(p):
     'continue : CONTINUE PUNTOYCOMA'
     nodo = NodoH(getIndex(),"sentencia",[])
     nodo.agregar(NodoH(getIndex(), "Continue", None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(SentenciaContinue(p.lineno(1)), nodo)
+    p[0] = Nodo(SentenciaContinue(p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_return(p):
     'return : RETURN operacion PUNTOYCOMA'
@@ -701,7 +723,7 @@ def p_return(p):
     nodo.agregar(NodoH(getIndex(), "Return", None))
     nodo.agregar(p[2].nodo)
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(SentenciaReturn(p[2],p.lineno(1)), nodo)
+    p[0] = Nodo(SentenciaReturn(p[2],p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 
 #operaicon
@@ -792,7 +814,7 @@ def p_operacionLlamada3(p):
     for val in p[3].nodo:
         nodo.agregar(val)
     nodo.agregar(NodoH(getIndex(), ")", None))
-    p[0] = Nodo(llamada(p[1], p[3], p.lineno(1)), nodo)
+    p[0] = Nodo(llamada(p[1], p[3], p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_operacionLlamada4(p):
     'operacion : ID PARIZQ  PARDER '
@@ -800,7 +822,7 @@ def p_operacionLlamada4(p):
     nodo.agregar(NodoH(getIndex(), str(p[1]), None))
     nodo.agregar(NodoH(getIndex(), "(", None))
     nodo.agregar(NodoH(getIndex(), ")", None))
-    p[0] = Nodo(llamada(p[1], None, p.lineno(1)), nodo)
+    p[0] = Nodo(llamada(p[1], None, p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 
 #locales
@@ -902,7 +924,7 @@ def p_operacionLocalparse(p):
     nodo.agregar(NodoH(getIndex(), ",", None))
     nodo.agregar(NodoH(getIndex(), str(p[5]), None))
     nodo.agregar(NodoH(getIndex(), ")", None))
-    p[0] = Nodo(OperacionParse(p[3],p[5],p.lineno(1)), nodo)
+    p[0] = Nodo(OperacionParse(p[3],p[5],p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_operacionLocaltrunc(p):
     'local     : TRUNC PARIZQ DECIMAL PARDER  '
@@ -911,7 +933,7 @@ def p_operacionLocaltrunc(p):
     nodo.agregar(NodoH(getIndex(), "(", None))
     nodo.agregar(NodoH(getIndex(), str(p[3]), None))
     nodo.agregar(NodoH(getIndex(), ")", None))
-    p[0] = Nodo(OperacionTrunc(p[3],p.lineno(1)), nodo)
+    p[0] = Nodo(OperacionTrunc(p[3],p.lineno(1),buscar_columna(p.slice[1])), nodo)
     
 def p_operacionLocalfloat(p):
     'local     : FLOAT PARIZQ ENTERO PARDER  '
@@ -920,7 +942,7 @@ def p_operacionLocalfloat(p):
     nodo.agregar(NodoH(getIndex(), "(", None))
     nodo.agregar(NodoH(getIndex(), str(p[3]), None))
     nodo.agregar(NodoH(getIndex(), ")", None))
-    p[0] = Nodo(OperacionFloat(p[3],p.lineno(1)), nodo)
+    p[0] = Nodo(OperacionFloat(p[3],p.lineno(1),buscar_columna(p.slice[1])), nodo)
     
 def p_operacionLocalstring(p):
     'local     : STRING PARIZQ operacion PARDER  '
@@ -929,7 +951,7 @@ def p_operacionLocalstring(p):
     nodo.agregar(NodoH(getIndex(), "(", None))
     nodo.agregar(p[3].nodo)
     nodo.agregar(NodoH(getIndex(), ")", None))
-    p[0] = Nodo(OperacionString(p[3],p.lineno(1)), nodo)
+    p[0] = Nodo(OperacionString(p[3],p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_operacionLocaltypeof(p):
     'local     : TYPEOF PARIZQ operacion PARDER  '
@@ -938,25 +960,45 @@ def p_operacionLocaltypeof(p):
     nodo.agregar(NodoH(getIndex(), "(", None))
     nodo.agregar(p[3].nodo)
     nodo.agregar(NodoH(getIndex(), ")", None))
-    p[0] = Nodo(OperacionTypeof(p[3],p.lineno(1)), nodo)
+    p[0] = Nodo(OperacionTypeof(p[3],p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 def p_operacionpush(p):
-    'local     : PUSH PARIZQ operacion PARDER  '
-    nodo = NodoH(getIndex(),"local",[])
+    'sentencia     : PUSH NOT PARIZQ ID COMA operacion PARDER PUNTOYCOMA '
+    nodo = NodoH(getIndex(),"sentencia",[])
     nodo.agregar(NodoH(getIndex(), "PUSH", None))
+    nodo.agregar(NodoH(getIndex(), "!", None))
     nodo.agregar(NodoH(getIndex(), "(", None))
-    nodo.agregar(p[3].nodo)
+    nodo.agregar(NodoH(getIndex(), str(p[4]), None))
+    nodo.agregar(p[6].nodo)
     nodo.agregar(NodoH(getIndex(), ")", None))
-    p[0] = Nodo(OperacionPush(p[3],p.lineno(1)), nodo)
+    nodo.agregar(NodoH(getIndex(), ";", None))
+    p[0] = Nodo(OperacionPush(p[3],p[6],p.lineno(1),buscar_columna(p.slice[4])), nodo)
+
+def p_operacionpush(p):
+    'sentencia     : PUSH NOT PARIZQ ID listaposiciones COMA operacion PARDER PUNTOYCOMA '
+    nodo = NodoH(getIndex(),"sentencia",[])
+    nodo.agregar(NodoH(getIndex(), "PUSH", None))
+    nodo.agregar(NodoH(getIndex(), "!", None))
+    nodo.agregar(NodoH(getIndex(), "(", None))
+    nodo.agregar(NodoH(getIndex(), str(p[4]), None))
+    for val in p[5].nodo:
+        nodo.agregar(val)
+    nodo.agregar(p[7].nodo)
+    nodo.agregar(NodoH(getIndex(), ")", None))
+    nodo.agregar(NodoH(getIndex(), ";", None))
+    p[0] = Nodo(OperacionPush(p[4],p[5],p[7],p.lineno(1),buscar_columna(p.slice[1])), nodo)
+
 
 
 def p_operacionpop(p):
-    'local     : POP PARIZQ PARDER  '
+    'local     : POP NOT PARIZQ ID PARDER  '
     nodo = NodoH(getIndex(),"local",[])
-    nodo.agregar(NodoH(getIndex(), "PUSH", None))
+    nodo.agregar(NodoH(getIndex(), "POP", None))
+    nodo.agregar(NodoH(getIndex(), "!", None))
     nodo.agregar(NodoH(getIndex(), "(", None))
+    nodo.agregar(NodoH(getIndex(), str(p[4]), None))
     nodo.agregar(NodoH(getIndex(), ")", None))
-    p[0] = Nodo(OperacionPop(p[3],p.lineno(1)), nodo)
+    p[0] = Nodo(OperacionPop(p[3],p.lineno(1),buscar_columna(p.slice[1])), nodo)
 
 
 
