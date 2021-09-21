@@ -13,6 +13,9 @@ interpre = []
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/')
+def inicio():
+    return 'funciona bien la api'
 
 
 @app.route('/serv/ast', methods = ['POST'])
