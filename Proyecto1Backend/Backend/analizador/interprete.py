@@ -228,28 +228,28 @@ class interprete:
         elif operacion.tipo == Tipo.DECIMAL:
             return float(operacion.valor)
         else:
-            nuevo = err.TokenError("Semantico","tipo desconocido", operacion.linea,0)
+            nuevo = err.TokenError("Semantico","tipo desconocido", operacion.linea,operacion.columna)
             self.lst_errores.append(nuevo)
 
     def procesar_trunc(self,operacion):
         if isinstance(operacion.valor, float):
              return int(float(operacion.valor))
         else: 
-            nuevo = err.TokenError("Semantico","tipo no es float", operacion.linea,0)
+            nuevo = err.TokenError("Semantico","tipo no es float", operacion.linea,operacion.columna)
             self.lst_errores.append(nuevo)
     
     def procesar_float(self,operacion):
         if isinstance(operacion.valor, int):
             return float(operacion.valor)
         else: 
-            nuevo = err.TokenError("Semantico","Valor no es Entero", operacion.linea,0)
+            nuevo = err.TokenError("Semantico","Valor no es Entero", operacion.linea,operacion.columna)
             self.lst_errores.append(nuevo)
 
     def procesar_Fstring(self,operacion,ts):
         if operacion.valor != None:
             return  "\""+ str(self.procesar_valor(operacion.valor,ts)) + "\""
         else: #faltan arreglos
-            nuevo = err.TokenError("Semantico","error al convertir en string", operacion.linea,0)
+            nuevo = err.TokenError("Semantico","error al convertir en string", operacion.linea,operacion.columna)
             self.lst_errores.append(nuevo)
     
     def procesar_typeof(self,operacion,ts):
@@ -282,7 +282,7 @@ class interprete:
             elif tipo == Tipo.NULO:
                 return "NOTHING"
             else:
-                nuevo = err.TokenError("Semantico","Tipo Desconocido", operacion.linea,0)
+                nuevo = err.TokenError("Semantico","Tipo Desconocido", operacion.linea,operacion.columna)
                 self.lst_errores.append(nuevo)
 
 #nativas Parte 2
@@ -628,7 +628,7 @@ class interprete:
             op1 = self.procesar_operacion(instr.condicional.operacion,ts)
             if isinstance(op1, ArbolCaracter):
                 variable = instr.id
-                for variable in self.procesar_operacion(instr.condicional.operacion,ts).getText():
+                for variable in self.procesar_operacion(instr.condicional.operacion,ts).getText().replace("\"",""):
                     simbolo = TS.Simbolo(instr.id, variable, str,'for', instr.linea, 0)
                     ts.actualizar(simbolo)
                     if self.cont_global == 1:
@@ -720,7 +720,7 @@ class interprete:
                                     tablalocal.agregar(simbololocal)
                                     cont = cont +1
                             else: 
-                                nuevo = err.TokenError("Semantico","Parametros no coinciden", 0,0)
+                                nuevo = err.TokenError("Semantico","Parametros no coinciden", inst.linea ,inst.columna)
                                 self.lst_errores.append(nuevo)
                         if isinstance(func.instrucciones, Declaracion):
                             self.procesar_DeclaracionesAmbito(func.idfuncion,func.instrucciones,tablalocal)
@@ -744,10 +744,10 @@ class interprete:
                                     struct[key] = valor
                             return struct
                         else:
-                            nuevo = err.TokenError("Semantico","valores no coinciden",0,0)
+                            nuevo = err.TokenError("Semantico","valores no coinciden", inst.linea ,inst.columna)
                             self.lst_errores.append(nuevo)
         else:
-                nuevo = err.TokenError("Semantico","Funciones no declaradas", 0,0)
+                nuevo = err.TokenError("Semantico","Funciones no declaradas",  inst.linea ,inst.columna)
                 self.lst_errores.append(nuevo)
         self.local.append(tablalocal)
 
@@ -892,10 +892,10 @@ class interprete:
                     arr = ts.get(expresion.arreglo,ts)
                     arr = arre.bloqueArreglo(arr)
                     arr.agregar(self.procesar_operacion(expresion.valor,ts))
-                    simbolo = TS.Simbolo(expresion.arreglo, arr.arreglo, TIPO_ESTRUCTURAS.ARREGLO,"Global", expresion.linea, 0)
+                    simbolo = TS.Simbolo(expresion.arreglo, arr.arreglo, TIPO_ESTRUCTURAS.ARREGLO,"Global", expresion.linea, expresion.columna)
                     ts.actualizar(simbolo)
                 else:
-                    nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo), 0,0)
+                    nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo),expresion.linea, expresion.columna)
                     self.lst_errores.append(nuevo)
             else:
                 if ts.verificar(expresion.arreglo,ts):
@@ -908,10 +908,10 @@ class interprete:
                         aux = arr.obtener(posiciones)
                         aux = arre.bloqueArreglo(aux)
                         aux.agregar(self.procesar_operacion(expresion.valor,ts))
-                        simbolo = TS.Simbolo(expresion.arreglo, arr.arreglo, TIPO_ESTRUCTURAS.ARREGLO,"Global", expresion.linea, 0)
+                        simbolo = TS.Simbolo(expresion.arreglo, arr.arreglo, TIPO_ESTRUCTURAS.ARREGLO,"Global", expresion.linea, expresion.columna)
                         ts.actualizar(simbolo)
                 else:
-                    nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo), 0,0)
+                    nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo), expresion.linea, expresion.columna)
                     self.lst_errores.append(nuevo)
 
     def procesar_arreglopop(self,expresion,ts):
@@ -921,7 +921,7 @@ class interprete:
                 val = arr.sacar()
                 return val
         else:
-            nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo), 0,0)
+            nuevo = err.TokenError("Semantico","Identificador  \"{0}\"  no existe".format(expresion.arreglo), expresion.linea, expresion.columna)
             self.lst_errores.append(nuevo)
 
 # recorrer instrucciones

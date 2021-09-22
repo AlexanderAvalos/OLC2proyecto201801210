@@ -972,9 +972,9 @@ def p_operacionpush(p):
     nodo.agregar(p[6].nodo)
     nodo.agregar(NodoH(getIndex(), ")", None))
     nodo.agregar(NodoH(getIndex(), ";", None))
-    p[0] = Nodo(OperacionPush(p[3],p[6],p.lineno(1),buscar_columna(p.slice[4])), nodo)
+    p[0] = Nodo(OperacionPush(p[4],None,p[6],p.lineno(1),buscar_columna(p.slice[4])), nodo)
 
-def p_operacionpush(p):
+def p_operacionpush2(p):
     'sentencia     : PUSH NOT PARIZQ ID listaposiciones COMA operacion PARDER PUNTOYCOMA '
     nodo = NodoH(getIndex(),"sentencia",[])
     nodo.agregar(NodoH(getIndex(), "PUSH", None))
