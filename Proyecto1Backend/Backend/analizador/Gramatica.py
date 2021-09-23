@@ -120,7 +120,6 @@ t_OR = r'\|\|'
 t_NOT = r'\!'
 t_AND = r'&&'
 t_IGUAL = r'='
-t_ignore = " \t\r"
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -160,17 +159,18 @@ def t_CARACTER(t):
     return t
 
 
-def t_COMENTARIOSIMPLE(t):
+def t_COMENTARIO_SIMPLE(t):
     r'\#.*\n'
     t.lexer.lineno += 1
+t_ignore = " \t\r"
 
 
-def t_COMENTARIOMULTIPLE(t):
+def t_COMENTARIO_MULTIPLE(t):
     r'\#\=(.|\n)*?\=\#'
     t.lexer.lineno += t.value.count('\n')
 
 
-def t_NUEVALINEA(t):
+def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
 
@@ -354,6 +354,7 @@ def p_declaglobal(p):
 def p_declalocal(p):
     'asignacion : LOCALR ID PUNTOYCOMA'
     p[0] = Declaracionaux(p[1],p[2],p.lineno(2),buscar_columna(p.slice[2]))
+
 def p_asignacion(p):
     'asignacion : ID IGUAL operacion DOBLEPUNTO tipo PUNTOYCOMA'
     p[0] = Declaracion(None,p[1],p[3],p[5],p.lineno(1),buscar_columna(p.slice[1]))
@@ -483,6 +484,7 @@ def p_impresionVacia(p):
                  | PRINTLN PARIZQ  PARDER PUNTOYCOMA
     '''
     p[0] = PrintCadena([p[1]], p.lineno(3),buscar_columna(p.slice[1]))
+    
 #operaciones simples 
 def p_operacionLogicas(p):
     '''operacion   : operacion AND              operacion

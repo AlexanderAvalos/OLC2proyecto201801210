@@ -408,6 +408,23 @@ def p_asignacionstruct(p):
     nodo.agregar(NodoH(getIndex(),";",None))
     p[0] = Nodo(AsginacionStruc(p[1],p[2],p[4],p.lineno(1),buscar_columna(p.slice[1])),nodo)
 
+def p_declaglobal(p):
+    'asignacion : GLOBAL ID PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"instruccion",[])
+    nodo.agregar(NodoH(getIndex(),"Global",None))
+    nodo.agregar(NodoH(getIndex(),str(p[2]),None))
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] = Nodo(Declaracionaux(p[1],p[2],p.lineno(2),buscar_columna(p.slice[2])),nodo)
+
+def p_declalocal(p):
+    'asignacion : LOCALR ID PUNTOYCOMA'
+    nodo = NodoH(getIndex(),"instruccion",[])
+    nodo.agregar(NodoH(getIndex(),"Local",None))
+    nodo.agregar(NodoH(getIndex(),str(p[2]),None))
+    nodo.agregar(NodoH(getIndex(),";",None))
+    p[0] = Nodo(Declaracionaux(p[1],p[2],p.lineno(2),buscar_columna(p.slice[2])),nodo)
+
+    p[0] = Declaracionaux(p[1],p[2],p.lineno(2),buscar_columna(p.slice[2]))
 
 def p_asignacion(p):
     'asignacion : ID IGUAL operacion DOBLEPUNTO tipo PUNTOYCOMA'
@@ -558,6 +575,16 @@ def p_nativo(p):
     '''
     p[0] = p[1]
 
+def p_impresionVacia(p):
+    '''impresion : PRINT PARIZQ  PARDER PUNTOYCOMA
+                 | PRINTLN PARIZQ  PARDER PUNTOYCOMA
+    '''
+    nodo = NodoH(getIndex(),"impresion",[])
+    nodo.agregar(NodoH(getIndex(), str(p[1]), None))
+    nodo.agregar(NodoH(getIndex(), "(", None))
+    nodo.agregar(NodoH(getIndex(), ")", None))
+    nodo.agregar(NodoH(getIndex(), ";", None))
+    p[0] = Nodo(PrintCadena([p[1]], p.lineno(3),buscar_columna(p.slice[1])) , nodo)
 
 def p_impresionSimple(p):
     '''impresion : PRINT PARIZQ valores PARDER PUNTOYCOMA

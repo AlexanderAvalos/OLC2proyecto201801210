@@ -93,7 +93,7 @@ export default function Analisis(){
                     
                     
                 </Container>
-                <div><Graphviz dot={as}/>
+                <div><Graphviz dot={as} zoom = {true} />
                 <Graphviz dot={ts}/>
                 <Graphviz dot={te}/></div>
                 
